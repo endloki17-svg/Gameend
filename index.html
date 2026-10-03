@@ -8,10 +8,10 @@
 <!-- 안정적인 Three.js Import Map -->
 <script type="importmap">
 {
-"imports": {
-"three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-"three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
-}
+  "imports": {
+    "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+  }
 }
 </script>
 
@@ -20,41 +20,41 @@
 
 <style>
 body, html {
-margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-background-color: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-color: #fff; user-select: none; touch-action: none;
+  margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+  background-color: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff; user-select: none; touch-action: none;
 }
 
 #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
 /* UI 레이어 공통 스타일 */
 .ui-layer {
-position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-display: flex; flex-direction: column; justify-content: center; align-items: center;
-background: radial-gradient(circle, rgba(10,10,20,0.85) 0%, rgba(0,0,0,0.95) 100%);
-backdrop-filter: blur(5px); transition: opacity 0.4s ease;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: radial-gradient(circle, rgba(10,10,20,0.85) 0%, rgba(0,0,0,0.95) 100%);
+  backdrop-filter: blur(5px); transition: opacity 0.4s ease;
 }
 .hidden { display: none !important; }
 
 .panel {
-background: rgba(20, 20, 30, 0.85); border: 2px solid #00ffff; border-radius: 15px;
-padding: 30px 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
-max-width: 450px; width: 85%; max-height: 90vh; overflow-y: auto;
+  background: rgba(20, 20, 30, 0.85); border: 2px solid #00ffff; border-radius: 15px;
+  padding: 30px 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+  max-width: 450px; width: 85%; max-height: 90vh; overflow-y: auto;
 }
 
 h1 { font-size: 2.5rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px #0ff, 0 0 20px #0ff; }
 h2 { font-size: 1.5rem; margin-bottom: 15px; color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
 
 input {
-width: 80%; padding: 12px; margin: 10px 0; background: rgba(0, 0, 0, 0.5); border: 1px solid #0ff;
-border-radius: 8px; color: #fff; font-size: 1.1rem; text-align: center; outline: none; transition: all 0.3s;
+  width: 80%; padding: 12px; margin: 10px 0; background: rgba(0, 0, 0, 0.5); border: 1px solid #0ff;
+  border-radius: 8px; color: #fff; font-size: 1.1rem; text-align: center; outline: none; transition: all 0.3s;
 }
 input:focus { box-shadow: 0 0 15px rgba(0, 255, 255, 0.5); }
 
 button {
-width: 85%; padding: 15px; margin: 10px 0; background: linear-gradient(45deg, #00ffff, #ff00ff);
-border: none; border-radius: 8px; color: #fff; font-size: 1.2rem; font-weight: bold; cursor: pointer;
-text-transform: uppercase; transition: transform 0.2s; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  width: 85%; padding: 15px; margin: 10px 0; background: linear-gradient(45deg, #00ffff, #ff00ff);
+  border: none; border-radius: 8px; color: #fff; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+  text-transform: uppercase; transition: transform 0.2s; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 button:active { transform: scale(0.95); }
 button:disabled { filter: grayscale(100%); cursor: not-allowed; }
@@ -64,12 +64,12 @@ button:disabled { filter: grayscale(100%); cursor: not-allowed; }
 
 /* 인게임 HUD */
 #crosshair {
-position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid rgba(0, 255, 255, 0.8);
-border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none;
+  position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid rgba(0, 255, 255, 0.8);
+  border-radius: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none;
 }
 #crosshair::after {
-content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: #ff00ff;
-border-radius: 50%; transform: translate(-50%, -50%);
+  content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background-color: #ff00ff;
+  border-radius: 50%; transform: translate(-50%, -50%);
 }
 #hud { position: absolute; top: 20px; left: 20px; z-index: 5; font-size: 1.2rem; text-shadow: 0 0 10px #0ff; pointer-events: none; }
 
@@ -83,20 +83,20 @@ border-radius: 50%; transform: translate(-50%, -50%);
 
 /* 모바일 터치 컨트롤러 UI */
 #mobile-controls {
-position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; display: none;
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; display: none;
 }
 #joystick-zone {
-position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px;
-background: rgba(0, 255, 255, 0.1); border: 2px solid rgba(0, 255, 255, 0.3); border-radius: 50%; pointer-events: auto;
+  position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px;
+  background: rgba(0, 255, 255, 0.1); border: 2px solid rgba(0, 255, 255, 0.3); border-radius: 50%; pointer-events: auto;
 }
 #joystick-knob {
-position: absolute; top: 50%; left: 50%; width: 50px; height: 50px;
-background: rgba(255, 0, 255, 0.5); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 15px #f0f;
+  position: absolute; top: 50%; left: 50%; width: 50px; height: 50px;
+  background: rgba(255, 0, 255, 0.5); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 15px #f0f;
 }
 #shoot-btn {
-position: absolute; bottom: 40px; right: 40px; width: 90px; height: 90px;
-background: rgba(255, 255, 0, 0.2); border: 3px solid #ff0; border-radius: 50%; pointer-events: auto;
-display: flex; justify-content: center; align-items: center; color: #ff0; font-weight: bold; text-shadow: 0 0 10px #ff0; box-shadow: 0 0 20px rgba(255,255,0,0.4);
+  position: absolute; bottom: 40px; right: 40px; width: 90px; height: 90px;
+  background: rgba(255, 255, 0, 0.2); border: 3px solid #ff0; border-radius: 50%; pointer-events: auto;
+  display: flex; justify-content: center; align-items: center; color: #ff0; font-weight: bold; text-shadow: 0 0 10px #ff0; box-shadow: 0 0 20px rgba(255,255,0,0.4);
 }
 #shoot-btn:active { background: rgba(255, 255, 0, 0.5); transform: scale(0.95); }
 #look-zone { position: absolute; top: 0; right: 0; width: 50%; height: 100%; pointer-events: auto; }
@@ -106,61 +106,61 @@ display: flex; justify-content: center; align-items: center; color: #ff0; font-w
 
 <!-- UI 계층 -->
 <div id="login-ui" class="ui-layer">
-<div class="panel">
-<h1>Neon Strike<br>Mobile</h1>
-<p>당신의 이름을 입력하세요</p>
-<input type="text" id="username-input" placeholder="닉네임 (자동가입)" maxlength="10">
-<button id="btn-login">서버 접속</button>
-</div>
+  <div class="panel">
+    <h1>Neon Strike<br>Mobile</h1>
+    <p>당신의 이름을 입력하세요</p>
+    <input type="text" id="username-input" placeholder="닉네임 (자동가입)" maxlength="10">
+    <button id="btn-login">서버 접속</button>
+  </div>
 </div>
 
 <div id="lobby-ui" class="ui-layer hidden">
-<div class="panel">
-<h2>메인 로비</h2>
-<p id="welcome-msg"></p>
-<hr style="border-color: rgba(0,255,255,0.2); margin: 15px 0;">
-<button id="btn-show-gacha" class="btn-gacha">✨ 최고급 무기 뽑기 ✨</button>
-<hr style="border-color: rgba(0,255,255,0.2); margin: 15px 0;">
-<button id="btn-create-room">새 방 만들기</button>
-<p style="margin: 10px 0;">또는</p>
-<input type="text" id="room-code-input" placeholder="코드 (3자리)" maxlength="3" style="text-transform: uppercase;">
-<button id="btn-join-room">방 참가하기</button>
-</div>
+  <div class="panel">
+    <h2>메인 로비</h2>
+    <p id="welcome-msg"></p>
+    <hr style="border-color: rgba(0,255,255,0.2); margin: 15px 0;">
+    <button id="btn-show-gacha" class="btn-gacha">✨ 최고급 무기 뽑기 ✨</button>
+    <hr style="border-color: rgba(0,255,255,0.2); margin: 15px 0;">
+    <button id="btn-create-room">새 방 만들기</button>
+    <p style="margin: 10px 0;">또는</p>
+    <input type="text" id="room-code-input" placeholder="코드 (3자리)" maxlength="3" style="text-transform: uppercase;">
+    <button id="btn-join-room">방 참가하기</button>
+  </div>
 </div>
 
 <div id="gacha-ui" class="ui-layer hidden">
-<div class="panel">
-<h2>무기 보급소</h2>
-<div id="gacha-result">무기를 뽑아주세요!</div>
-<p id="gacha-desc" style="color: #ccc; margin-bottom: 20px;"></p>
-<button id="btn-pull-gacha" class="btn-gacha">뽑기 (무료)</button>
-<button id="btn-close-gacha" style="background: #333;">로비로 돌아가기</button>
-</div>
+  <div class="panel">
+    <h2>무기 보급소</h2>
+    <div id="gacha-result">무기를 뽑아주세요!</div>
+    <p id="gacha-desc" style="color: #ccc; margin-bottom: 20px;"></p>
+    <button id="btn-pull-gacha" class="btn-gacha">뽑기 (무료)</button>
+    <button id="btn-close-gacha" style="background: #333;">로비로 돌아가기</button>
+  </div>
 </div>
 
 <div id="room-ui" class="ui-layer hidden">
-<div class="panel">
-<h2>작전 대기실</h2>
-<p>친구에게 아래 초대 코드를 알려주세요</p>
-<div id="room-code-display" class="room-code-display">---</div>
-<p id="connection-status" style="color: #ff00ff;">대기 중...</p>
-<button id="btn-start-game" class="hidden">게임 시작</button>
-</div>
+  <div class="panel">
+    <h2>작전 대기실</h2>
+    <p>친구에게 아래 초대 코드를 알려주세요</p>
+    <div id="room-code-display" class="room-code-display">---</div>
+    <p id="connection-status" style="color: #ff00ff;">대기 중...</p>
+    <button id="btn-start-game" class="hidden">게임 시작</button>
+  </div>
 </div>
 
 <!-- 인게임 HUD 및 컨트롤러 -->
 <div id="game-ui" class="hidden">
-<div id="crosshair"></div>
-<div id="hud">
-요원: <span id="hud-name">Player</span><br>
-무기: <span id="hud-weapon">Basic</span>
-</div>
+  <div id="crosshair"></div>
+  <div id="hud">
+    요원: <span id="hud-name">Player</span><br>
+    무기: <span id="hud-weapon">Basic</span>
+  </div>
 
-<div id="mobile-controls">
-<div id="look-zone"></div>
-<div id="joystick-zone"><div id="joystick-knob"></div></div>
-<div id="shoot-btn">FIRE</div>
-</div>
+  <div id="mobile-controls">
+    <div id="look-zone"></div>
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+    <div id="shoot-btn">FIRE</div>
+  </div>
 </div>
 
 <div id="game-container"></div>
@@ -169,136 +169,136 @@ display: flex; justify-content: center; align-items: center; color: #ff0; font-w
 <script>
 // 전역 상태 (3D 엔진과 데이터 공유)
 window.GameState = {
-username: '', peer: null, conn: null, isHost: false, roomCode: '',
-gunData: { name: '훈련용 권총', grade: 'normal', color: 0x888888, emissive: 0x222222, power: 10 },
-isPlaying: false, isMobile: false, engineReady: false
+  username: '', peer: null, conn: null, isHost: false, roomCode: '',
+  gunData: { name: '훈련용 권총', grade: 'normal', color: 0x888888, emissive: 0x222222, power: 10 },
+  isPlaying: false, isMobile: false, engineReady: false
 };
 
 const PEER_PREFIX = 'neon-ultra-stable-';
 window.GameState.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || ('ontouchstart' in window);
 
 document.addEventListener('DOMContentLoaded', () => {
-const uiLogin = document.getElementById('login-ui');
-const uiLobby = document.getElementById('lobby-ui');
-const uiGacha = document.getElementById('gacha-ui');
-const uiRoom = document.getElementById('room-ui');
+  const uiLogin = document.getElementById('login-ui');
+  const uiLobby = document.getElementById('lobby-ui');
+  const uiGacha = document.getElementById('gacha-ui');
+  const uiRoom = document.getElementById('room-ui');
 
-// 로그인 버튼 이벤트
-document.getElementById('btn-login').addEventListener('click', () => {
-const name = document.getElementById('username-input').value.trim();
-if (!name) return alert('이름을 입력하세요!');
+  // 로그인 버튼 이벤트
+  document.getElementById('btn-login').addEventListener('click', () => {
+    const name = document.getElementById('username-input').value.trim();
+    if (!name) return alert('이름을 입력하세요!');
 
-window.GameState.username = name;
-document.getElementById('welcome-msg').innerText = 환영합니다, 요원 ${name}.`;
+    window.GameState.username = name;
+    document.getElementById('welcome-msg').innerText = `환영합니다, 요원 ${name}.`;
 
-try {
-if (typeof Peer !== 'undefined') {
-window.GameState.peer = new Peer({ config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }]}});
-window.GameState.peer.on('error', (err) => {
-console.error(err);
-alert('네트워크 상태가 불안정합니다. 연결이 지연될 수 있습니다.');
-});
-} else {
-alert('통신 모듈 로드 실패. 방 생성 및 참가가 제한될 수 있습니다.');
-}
-} catch(e) {
-console.error("PeerJS Error:", e);
-}
+    try {
+      if (typeof Peer !== 'undefined') {
+        window.GameState.peer = new Peer({ config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }]}});
+        window.GameState.peer.on('error', (err) => {
+          console.error(err);
+          alert('네트워크 상태가 불안정합니다. 연결이 지연될 수 있습니다.');
+        });
+      } else {
+        alert('통신 모듈 로드 실패. 방 생성 및 참가가 제한될 수 있습니다.');
+      }
+    } catch (e) {
+      console.error('PeerJS Error:', e);
+    }
 
-uiLogin.classList.add('hidden');
-uiLobby.classList.remove('hidden');
-});
+    uiLogin.classList.add('hidden');
+    uiLobby.classList.remove('hidden');
+  });
 
-// 가챠 (무기 뽑기) 시스템
-const gachaPool = [
-{ name: "타이탄 레이저", grade: "legendary", color: 0xffd700, emissive: 0xff8800, msg: "우주를 가르는 파괴력!" },
-{ name: "네온 플라즈마", grade: "legendary", color: 0x00ffff, emissive: 0x00ffff, msg: "눈부신 네온의 심판!" },
-{ name: "암흑 물질포", grade: "epic", color: 0xa335ee, emissive: 0x8800ff, msg: "모든 것을 빨아들입니다." },
-{ name: "사이버 라이플", grade: "rare", color: 0x0070dd, emissive: 0x0044ff, msg: "안정적인 고성능 무기." },
-{ name: "표준형 블래스터", grade: "normal", color: 0xaaaaaa, emissive: 0x444444, msg: "기본 지급용 무기입니다." }
- ];
+  // 가챠 (무기 뽑기) 시스템
+  const gachaPool = [
+    { name: '타이탄 레이저', grade: 'legendary', color: 0xffd700, emissive: 0xff8800, msg: '우주를 가르는 파괴력!' },
+    { name: '네온 플라즈마', grade: 'legendary', color: 0x00ffff, emissive: 0x00ffff, msg: '눈부신 네온의 심판!' },
+    { name: '암흑 물질포', grade: 'epic', color: 0xa335ee, emissive: 0x8800ff, msg: '모든 것을 빨아들입니다.' },
+    { name: '사이버 라이플', grade: 'rare', color: 0x0070dd, emissive: 0x0044ff, msg: '안정적인 고성능 무기.' },
+    { name: '표준형 블래스터', grade: 'normal', color: 0xaaaaaa, emissive: 0x444444, msg: '기본 지급용 무기입니다.' }
+  ];
 
-document.getElementById('btn-pull-gacha').addEventListener('click', () => {
-const rand = Math.random();
-let result = (rand < 0.05) ? gachaPool[Math.floor(Math.random() * 2)] :
-(rand < 0.2) ? gachaPool[2] : (rand < 0.5) ? gachaPool[3] : gachaPool[4];
+  document.getElementById('btn-pull-gacha').addEventListener('click', () => {
+    const rand = Math.random();
+    let result = (rand < 0.05) ? gachaPool[Math.floor(Math.random() * 2)] :
+      (rand < 0.2) ? gachaPool[2] : (rand < 0.5) ? gachaPool[3] : gachaPool[4];
 
-window.GameState.gunData = result;
-const resEl = document.getElementById('gacha-result');
-resEl.innerText = result.name;
-resEl.className = 'grade-' + result.grade;
-document.getElementById('gacha-desc').innerText = result.msg;
+    window.GameState.gunData = result;
+    const resEl = document.getElementById('gacha-result');
+    resEl.innerText = result.name;
+    resEl.className = 'grade-' + result.grade;
+    document.getElementById('gacha-desc').innerText = result.msg;
 
-resEl.style.transform = 'scale(1.3)';
-setTimeout(() => resEl.style.transform = 'scale(1)', 200);
-});
+    resEl.style.transform = 'scale(1.3)';
+    setTimeout(() => resEl.style.transform = 'scale(1)', 200);
+  });
 
-document.getElementById('btn-show-gacha').addEventListener('click', () => { uiLobby.classList.add('hidden'); uiGacha.classList.remove('hidden'); });
-document.getElementById('btn-close-gacha').addEventListener('click', () => { uiGacha.classList.add('hidden'); uiLobby.classList.remove('hidden'); });
+  document.getElementById('btn-show-gacha').addEventListener('click', () => { uiLobby.classList.add('hidden'); uiGacha.classList.remove('hidden'); });
+  document.getElementById('btn-close-gacha').addEventListener('click', () => { uiGacha.classList.add('hidden'); uiLobby.classList.remove('hidden'); });
 
-// 멀티플레이어 방 시스템
-function setupConnection() {
-window.GameState.conn.on('data', (data) => {
-if (data.type === 'start' && typeof window.start3DGame === 'function') window.start3DGame();
-else if (data.type === 'update' && typeof window.updateOtherPlayer === 'function') window.updateOtherPlayer(data.pos, data.rot);
-else if (data.type === 'shoot' && typeof window.createTracer === 'function') window.createTracer(data.start, data.end, data.color);
-});
-}
+  // 멀티플레이어 방 시스템
+  function setupConnection() {
+    window.GameState.conn.on('data', (data) => {
+      if (data.type === 'start' && typeof window.start3DGame === 'function') window.start3DGame();
+      else if (data.type === 'update' && typeof window.updateOtherPlayer === 'function') window.updateOtherPlayer(data.pos, data.rot);
+      else if (data.type === 'shoot' && typeof window.createTracer === 'function') window.createTracer(data.start, data.end, data.color);
+    });
+  }
 
-document.getElementById('btn-create-room').addEventListener('click', () => {
-if(!window.GameState.peer) return alert('통신 모듈이 로드되지 않았습니다.');
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-let code = '';
-for (let i = 0; i < 3; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+  document.getElementById('btn-create-room').addEventListener('click', () => {
+    if (!window.GameState.peer) return alert('통신 모듈이 로드되지 않았습니다.');
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 3; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
 
-window.GameState.peer.destroy();
-window.GameState.peer = new Peer(PEER_PREFIX + code);
+    window.GameState.peer.destroy();
+    window.GameState.peer = new Peer(PEER_PREFIX + code);
 
-window.GameState.peer.on('open', () => {
-document.getElementById('room-code-display').innerText = code;
-uiLobby.classList.add('hidden');
-uiRoom.classList.remove('hidden');
-window.GameState.isHost = true;
-});
+    window.GameState.peer.on('open', () => {
+      document.getElementById('room-code-display').innerText = code;
+      uiLobby.classList.add('hidden');
+      uiRoom.classList.remove('hidden');
+      window.GameState.isHost = true;
+    });
 
-window.GameState.peer.on('connection', (connection) => {
-window.GameState.conn = connection;
-setupConnection();
-document.getElementById('connection-status').innerText = "상대방 접속 완료!";
-document.getElementById('connection-status').style.color = "#00ffff";
-document.getElementById('btn-start-game').classList.remove('hidden');
-});
-});
+    window.GameState.peer.on('connection', (connection) => {
+      window.GameState.conn = connection;
+      setupConnection();
+      document.getElementById('connection-status').innerText = '상대방 접속 완료!';
+      document.getElementById('connection-status').style.color = '#00ffff';
+      document.getElementById('btn-start-game').classList.remove('hidden');
+    });
+  });
 
-document.getElementById('btn-join-room').addEventListener('click', () => {
-if(!window.GameState.peer) return alert('통신 모듈이 로드되지 않았습니다.');
-const code = document.getElementById('room-code-input').value.trim().toUpperCase();
-if (code.length !== 3) return alert('3자리 코드를 정확히 입력하세요.');
+  document.getElementById('btn-join-room').addEventListener('click', () => {
+    if (!window.GameState.peer) return alert('통신 모듈이 로드되지 않았습니다.');
+    const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+    if (code.length !== 3) return alert('3자리 코드를 정확히 입력하세요.');
 
-window.GameState.conn = window.GameState.peer.connect(PEER_PREFIX + code);
-window.GameState.conn.on('open', () => {
-setupConnection();
-uiLobby.classList.add('hidden');
-uiRoom.classList.remove('hidden');
-document.getElementById('room-code-display').innerText = code;
-document.getElementById('connection-status').innerText = "방장에 연결됨. 대기중...";
-document.getElementById('connection-status').style.color = "#00ffff";
-});
-window.GameState.conn.on('error', () => alert('방을 찾을 수 없습니다.'));
-});
+    window.GameState.conn = window.GameState.peer.connect(PEER_PREFIX + code);
+    window.GameState.conn.on('open', () => {
+      setupConnection();
+      uiLobby.classList.add('hidden');
+      uiRoom.classList.remove('hidden');
+      document.getElementById('room-code-display').innerText = code;
+      document.getElementById('connection-status').innerText = '방장에 연결됨. 대기중...';
+      document.getElementById('connection-status').style.color = '#00ffff';
+    });
+    window.GameState.conn.on('error', () => alert('방을 찾을 수 없습니다.'));
+  });
 
-document.getElementById('btn-start-game').addEventListener('click', () => {
-if (!window.GameState.engineReady) return alert('3D 엔진 로딩 중입니다. 잠시만 기다려주세요.');
-if (window.GameState.conn && window.GameState.conn.open) window.GameState.conn.send({ type: 'start' });
-if(typeof window.start3DGame === 'function') window.start3DGame();
-});
+  document.getElementById('btn-start-game').addEventListener('click', () => {
+    if (!window.GameState.engineReady) return alert('3D 엔진 로딩 중입니다. 잠시만 기다려주세요.');
+    if (window.GameState.conn && window.GameState.conn.open) window.GameState.conn.send({ type: 'start' });
+    if (typeof window.start3DGame === 'function') window.start3DGame();
+  });
 
-// PC 환경에서 게임 중 클릭 시 마우스 잠금 (필수)
-document.body.addEventListener('click', () => {
-if (window.GameState.isPlaying && !window.GameState.isMobile && !document.pointerLockElement) {
-document.body.requestPointerLock().catch(()=>{});
-}
-});
+  // PC 환경에서 게임 중 클릭 시 마우스 잠금 (필수)
+  document.body.addEventListener('click', () => {
+    if (window.GameState.isPlaying && !window.GameState.isMobile && !document.pointerLockElement) {
+      document.body.requestPointerLock().catch(() => {});
+    }
+  });
 });
 </script>
 
@@ -324,271 +324,300 @@ const PI_2 = Math.PI / 2;
 let lastTime = 0;
 
 function init3D() {
-const container = document.getElementById('game-container');
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x020205);
-scene.fog = new THREE.FogExp2(0x020205, 0.015);
+  const container = document.getElementById('game-container');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x020205);
+  scene.fog = new THREE.FogExp2(0x020205, 0.015);
 
-camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.y = 1.6;
-camera.rotation.order = 'YXZ';
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.y = 1.6;
+  camera.rotation.order = 'YXZ';
 
-const pixelRatio = window.GameState.isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio;
-renderer = new THREE.WebGLRenderer({ antialias: !window.GameState.isMobile });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(pixelRatio);
-renderer.toneMapping = THREE.ReinhardToneMapping;
-container.appendChild(renderer.domElement);
+  const pixelRatio = window.GameState.isMobile ? Math.min(window.devicePixelRatio, 1.5) : window.devicePixelRatio;
+  renderer = new THREE.WebGLRenderer({ antialias: !window.GameState.isMobile });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(pixelRatio);
+  renderer.toneMapping = THREE.ReinhardToneMapping;
+  container.appendChild(renderer.domElement);
 
-const renderScene = new RenderPass(scene, camera);
-const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.5, 0.4, 0.85);
-bloomPass.threshold = 0.2;
-bloomPass.strength = window.GameState.isMobile ? 1.2 : 1.8;
-bloomPass.radius = 0.5;
+  const renderScene = new RenderPass(scene, camera);
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.5, 0.4, 0.85);
+  bloomPass.threshold = 0.2;
+  bloomPass.strength = window.GameState.isMobile ? 1.2 : 1.8;
+  bloomPass.radius = 0.5;
 
-composer = new EffectComposer(renderer);
-composer.addPass(renderScene);
-composer.addPass(bloomPass);
+  composer = new EffectComposer(renderer);
+  composer.addPass(renderScene);
+  composer.addPass(bloomPass);
 
-scene.add(new THREE.AmbientLight(0x222222));
-const dirLight = new THREE.DirectionalLight(0x5555aa, 1);
-dirLight.position.set(20, 50, 20);
-scene.add(dirLight);
+  scene.add(new THREE.AmbientLight(0x222222));
+  const dirLight = new THREE.DirectionalLight(0x5555aa, 1);
+  dirLight.position.set(20, 50, 20);
+  scene.add(dirLight);
 
-scene.add(new THREE.GridHelper(200, 100, 0x00ffff, 0x003333));
+  scene.add(new THREE.GridHelper(200, 100, 0x00ffff, 0x003333));
 
-const floorMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.8 });
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), floorMat);
-floor.rotation.x = -Math.PI / 2;
-scene.add(floor);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2, metalness: 0.8 });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  scene.add(floor);
 
-const boxGeo = new THREE.BoxGeometry(4, 4, 4);
-const boxMat = new THREE.MeshPhysicalMaterial({ color: 0x222222, metalness: 0.8, roughness: 0.3 });
-for(let i=0; i<25; i++) {
-const box = new THREE.Mesh(boxGeo, boxMat);
-box.position.set(Math.random() * 80 - 40, 2, Math.random() * 80 - 40);
-box.rotation.y = Math.random() * Math.PI;
-scene.add(box);
+  const boxGeo = new THREE.BoxGeometry(4, 4, 4);
+  const boxMat = new THREE.MeshPhysicalMaterial({ color: 0x222222, metalness: 0.8, roughness: 0.3 });
+  for (let i = 0; i < 25; i++) {
+    const box = new THREE.Mesh(boxGeo, boxMat);
+    box.position.set(Math.random() * 80 - 40, 2, Math.random() * 80 - 40);
+    box.rotation.y = Math.random() * Math.PI;
+    scene.add(box);
 
-if(Math.random() > 0.6) {
-const edges = new THREE.EdgesGeometry(boxGeo);
-box.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xff00ff })));
-}
-}
+    if (Math.random() > 0.6) {
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      box.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xff00ff })));
+    }
+  }
 
-createMyGun();
+  createMyGun();
 
-const playerGeo = new THREE.CapsuleGeometry(0.5, 1.5, 4, 8);
-const playerMat = new THREE.MeshPhysicalMaterial({ color: 0xff0000, emissive: 0x550000 });
-otherPlayerMesh = new THREE.Mesh(playerGeo, playerMat);
-otherPlayerMesh.position.set(0, -100, 0);
-scene.add(otherPlayerMesh);
+  const playerGeo = new THREE.CapsuleGeometry(0.5, 1.5, 4, 8);
+  const playerMat = new THREE.MeshPhysicalMaterial({ color: 0xff0000, emissive: 0x550000 });
+  otherPlayerMesh = new THREE.Mesh(playerGeo, playerMat);
+  otherPlayerMesh.position.set(0, -100, 0);
+  scene.add(otherPlayerMesh);
 
-const pLight = new THREE.PointLight(0xff0000, 1, 10);
-pLight.position.set(0, 1, 0);
-otherPlayerMesh.add(pLight);
+  const pLight = new THREE.PointLight(0xff0000, 1, 10);
+  pLight.position.set(0, 1, 0);
+  otherPlayerMesh.add(pLight);
 
-setupControls();
-window.addEventListener('resize', () => {
-camera.aspect = window.innerWidth / window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth, window.innerHeight);
-composer.setSize(window.innerWidth, window.innerHeight);
-});
+  setupControls();
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+  });
 }
 
 function createMyGun() {
-if(myGunMesh) camera.remove(myGunMesh);
-myGunMesh = new THREE.Group();
+  if (myGunMesh) camera.remove(myGunMesh);
+  myGunMesh = new THREE.Group();
 
-const data = window.GameState.gunData;
-const bodyMat = new THREE.MeshPhysicalMaterial({ color: 0x111111, metalness: 1.0, roughness: 0.2 });
-const glowMat = new THREE.MeshStandardMaterial({ color: data.color, emissive: data.emissive, emissiveIntensity: 4.0 });
+  const data = window.GameState.gunData;
+  const bodyMat = new THREE.MeshPhysicalMaterial({ color: 0x111111, metalness: 1.0, roughness: 0.2 });
+  const glowMat = new THREE.MeshStandardMaterial({ color: data.color, emissive: data.emissive, emissiveIntensity: 4.0 });
 
-const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.6, 16), bodyMat);
-barrel.rotation.x = Math.PI / 2; barrel.position.set(0, 0, -0.3); myGunMesh.add(barrel);
+  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.6, 16), bodyMat);
+  barrel.rotation.x = Math.PI / 2; barrel.position.set(0, 0, -0.3); myGunMesh.add(barrel);
 
-const core = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.4), bodyMat);
-core.position.set(0, -0.05, 0.1); myGunMesh.add(core);
+  const core = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.4), bodyMat);
+  core.position.set(0, -0.05, 0.1); myGunMesh.add(core);
 
-const neon1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), glowMat);
-neon1.rotation.x = Math.PI / 2; neon1.position.set(0.05, 0, -0.2); myGunMesh.add(neon1);
+  const neon1 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), glowMat);
+  neon1.rotation.x = Math.PI / 2; neon1.position.set(0.05, 0, -0.2); myGunMesh.add(neon1);
 
-const neon2 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), glowMat);
-neon2.rotation.x = Math.PI / 2; neon2.position.set(-0.05, 0, -0.2); myGunMesh.add(neon2);
+  const neon2 = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 8), glowMat);
+  neon2.rotation.x = Math.PI / 2; neon2.position.set(-0.05, 0, -0.2); myGunMesh.add(neon2);
 
-myGunMesh.position.set(0.3, -0.25, -0.5);
-camera.add(myGunMesh);
-scene.add(camera);
+  myGunMesh.position.set(0.3, -0.25, -0.5);
+  camera.add(myGunMesh);
+  scene.add(camera);
 }
 
 function setupControls() {
-if (window.GameState.isMobile) {
-document.getElementById('mobile-controls').style.display = 'block';
-setupMobileTouch();
-} else {
-setupPCKeyboardMouse();
-}
+  if (window.GameState.isMobile) {
+    document.getElementById('mobile-controls').style.display = 'block';
+    setupMobileTouch();
+  } else {
+    setupPCKeyboardMouse();
+  }
 }
 
 function setupPCKeyboardMouse() {
-document.addEventListener('keydown', (e) => {
-switch (e.code) { case 'KeyW': moveForward=true; break; case 'KeyA': moveLeft=true; break; case 'KeyS': moveBackward=true; break; case 'KeyD': moveRight=true; break; }
-});
-document.addEventListener('keyup', (e) => {
-switch (e.code) { case 'KeyW': moveForward=false; break; case 'KeyA': moveLeft=false; break; case 'KeyS': moveBackward=false; break; case 'KeyD': moveRight=false; break; }
-});
+  document.addEventListener('keydown', (e) => {
+    switch (e.code) {
+      case 'KeyW': moveForward = true; break;
+      case 'KeyA': moveLeft = true; break;
+      case 'KeyS': moveBackward = true; break;
+      case 'KeyD': moveRight = true; break;
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    switch (e.code) {
+      case 'KeyW': moveForward = false; break;
+      case 'KeyA': moveLeft = false; break;
+      case 'KeyS': moveBackward = false; break;
+      case 'KeyD': moveRight = false; break;
+    }
+  });
 
-document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === document.body));
+  document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === document.body));
 
-document.addEventListener('mousemove', (e) => {
-if(!isPointerLocked || !window.GameState.isPlaying) return;
-euler.setFromQuaternion(camera.quaternion);
-euler.y -= (e.movementX || 0) * 0.002;
-euler.x -= (e.movementY || 0) * 0.002;
-euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
-camera.quaternion.setFromEuler(euler);
-});
+  document.addEventListener('mousemove', (e) => {
+    if (!isPointerLocked || !window.GameState.isPlaying) return;
+    euler.setFromQuaternion(camera.quaternion);
+    euler.y -= (e.movementX || 0) * 0.002;
+    euler.x -= (e.movementY || 0) * 0.002;
+    euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
+    camera.quaternion.setFromEuler(euler);
+  });
 
-document.addEventListener('mousedown', () => { if(isPointerLocked && window.GameState.isPlaying) triggerShoot(); });
+  document.addEventListener('mousedown', () => { if (isPointerLocked && window.GameState.isPlaying) triggerShoot(); });
 }
 
 function setupMobileTouch() {
-const joyZone = document.getElementById('joystick-zone'), joyKnob = document.getElementById('joystick-knob');
-const maxRadius = 40; let joyStartX, joyStartY, joyActive = false;
+  const joyZone = document.getElementById('joystick-zone'), joyKnob = document.getElementById('joystick-knob');
+  const maxRadius = 40; let joyStartX, joyStartY, joyActive = false;
 
-joyZone.addEventListener('touchstart', (e) => {
-e.preventDefault(); joyActive = true;
-const rect = joyZone.getBoundingClientRect();
-joyStartX = rect.left + rect.width / 2; joyStartY = rect.top + rect.height / 2;
-updateJoy(e.changedTouches[0]);
-}, {passive: false});
+  joyZone.addEventListener('touchstart', (e) => {
+    e.preventDefault(); joyActive = true;
+    const rect = joyZone.getBoundingClientRect();
+    joyStartX = rect.left + rect.width / 2; joyStartY = rect.top + rect.height / 2;
+    updateJoy(e.changedTouches[0]);
+  }, { passive: false });
 
-joyZone.addEventListener('touchmove', (e) => { if(joyActive) { e.preventDefault(); updateJoy(e.changedTouches[0]); } }, {passive: false});
-const endJoy = () => { joyActive = false; joyDir = {x: 0, y: 0}; joyKnob.style.transform = translate(-50%, -50%); };
-joyZone.addEventListener('touchend', endJoy); joyZone.addEventListener('touchcancel', endJoy);
+  joyZone.addEventListener('touchmove', (e) => {
+    if (joyActive) {
+      e.preventDefault();
+      updateJoy(e.changedTouches[0]);
+    }
+  }, { passive: false });
 
-function updateJoy(touch) {
-let dx = touch.pageX - joyStartX, dy = touch.pageY - joyStartY;
-const dist = Math.sqrt(dxdx + dydy);
-if(dist > maxRadius) { dx = (dx/dist) * maxRadius; dy = (dy/dist) * maxRadius; }
-joyKnob.style.transform = translate(calc(-50% +${dx}px), calc(-50% + ${dy}px))`;
-joyDir.x = dx / maxRadius; joyDir.y = dy / maxRadius;
-}
+  const endJoy = () => {
+    joyActive = false;
+    joyDir = { x: 0, y: 0 };
+    joyKnob.style.transform = 'translate(-50%, -50%)';
+  };
+  joyZone.addEventListener('touchend', endJoy);
+  joyZone.addEventListener('touchcancel', endJoy);
 
-const lookZone = document.getElementById('look-zone');
-let lastTouchX = 0, lastTouchY = 0, lookActive = false;
+  function updateJoy(touch) {
+    let dx = touch.pageX - joyStartX;
+    let dy = touch.pageY - joyStartY;
+    const distSq = dx * dx + dy * dy;
+    const maxDist = maxRadius * maxRadius;
+    if (distSq > maxDist) {
+      const dist = Math.sqrt(distSq);
+      dx = (dx / dist) * maxRadius;
+      dy = (dy / dist) * maxRadius;
+    }
+    joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joyDir.x = dx / maxRadius;
+    joyDir.y = dy / maxRadius;
+  }
 
-lookZone.addEventListener('touchstart', (e) => {
-e.preventDefault(); lookActive = true;
-lastTouchX = e.changedTouches[0].pageX; lastTouchY = e.changedTouches[0].pageY;
-}, {passive: false});
+  const lookZone = document.getElementById('look-zone');
+  let lastTouchX = 0, lastTouchY = 0, lookActive = false;
 
-lookZone.addEventListener('touchmove', (e) => {
-if(!lookActive) return; e.preventDefault();
-const curX = e.changedTouches[0].pageX, curY = e.changedTouches[0].pageY;
-euler.setFromQuaternion(camera.quaternion);
-euler.y -= (curX - lastTouchX) * 0.005; euler.x -= (curY - lastTouchY) * 0.005;
-euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
-camera.quaternion.setFromEuler(euler);
-lastTouchX = curX; lastTouchY = curY;
-}, {passive: false});
+  lookZone.addEventListener('touchstart', (e) => {
+    e.preventDefault(); lookActive = true;
+    lastTouchX = e.changedTouches[0].pageX; lastTouchY = e.changedTouches[0].pageY;
+  }, { passive: false });
 
-lookZone.addEventListener('touchend', () => lookActive = false);
-lookZone.addEventListener('touchcancel', () => lookActive = false);
+  lookZone.addEventListener('touchmove', (e) => {
+    if (!lookActive) return;
+    e.preventDefault();
+    const curX = e.changedTouches[0].pageX, curY = e.changedTouches[0].pageY;
+    euler.setFromQuaternion(camera.quaternion);
+    euler.y -= (curX - lastTouchX) * 0.005; euler.x -= (curY - lastTouchY) * 0.005;
+    euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
+    camera.quaternion.setFromEuler(euler);
+    lastTouchX = curX; lastTouchY = curY;
+  }, { passive: false });
 
-document.getElementById('shoot-btn').addEventListener('touchstart', (e) => {
-e.preventDefault(); if(window.GameState.isPlaying) triggerShoot();
-});
+  lookZone.addEventListener('touchend', () => lookActive = false);
+  lookZone.addEventListener('touchcancel', () => lookActive = false);
+
+  document.getElementById('shoot-btn').addEventListener('touchstart', (e) => {
+    e.preventDefault(); if (window.GameState.isPlaying) triggerShoot();
+  });
 }
 
 function triggerShoot() {
-myGunMesh.position.z += 0.08; myGunMesh.rotation.x += 0.05;
-setTimeout(() => { myGunMesh.position.z -= 0.08; myGunMesh.rotation.x -= 0.05; }, 50);
+  myGunMesh.position.z += 0.08; myGunMesh.rotation.x += 0.05;
+  setTimeout(() => { myGunMesh.position.z -= 0.08; myGunMesh.rotation.x -= 0.05; }, 50);
 
-const raycaster = new THREE.Raycaster();
-raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
-const startPoint = new THREE.Vector3().copy(camera.position);
-const endPoint = new THREE.Vector3().copy(raycaster.ray.direction).multiplyScalar(100).add(startPoint);
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+  const startPoint = new THREE.Vector3().copy(camera.position);
+  const endPoint = new THREE.Vector3().copy(raycaster.ray.direction).multiplyScalar(100).add(startPoint);
 
-window.createTracer(startPoint, endPoint, window.GameState.gunData.color);
+  window.createTracer(startPoint, endPoint, window.GameState.gunData.color);
 
-if(window.GameState.conn && window.GameState.conn.open) {
-window.GameState.conn.send({ type: 'shoot', start: startPoint, end: endPoint, color: window.GameState.gunData.color });
-}
+  if (window.GameState.conn && window.GameState.conn.open) {
+    window.GameState.conn.send({ type: 'shoot', start: startPoint, end: endPoint, color: window.GameState.gunData.color });
+  }
 }
 
 // 글로벌 함수 노출 (네트워크 수신 시 사용)
 window.createTracer = function(start, end, colorHex) {
-const mat = new THREE.LineBasicMaterial({ color: colorHex, linewidth: 3 });
-const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([start, end]), mat);
-scene.add(line);
-tracers.push({ mesh: line, life: 1.0 });
+  const mat = new THREE.LineBasicMaterial({ color: colorHex, linewidth: 3 });
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([start, end]), mat);
+  scene.add(line);
+  tracers.push({ mesh: line, life: 1.0 });
 };
 
 window.updateOtherPlayer = function(pos, rot) {
-if(otherPlayerMesh) { otherPlayerMesh.position.set(pos.x, pos.y, pos.z); otherPlayerMesh.rotation.y = rot; }
+  if (otherPlayerMesh) { otherPlayerMesh.position.set(pos.x, pos.y, pos.z); otherPlayerMesh.rotation.y = rot; }
 };
 
 window.start3DGame = function() {
-document.getElementById('room-ui').classList.add('hidden');
-document.getElementById('game-ui').classList.remove('hidden');
+  document.getElementById('room-ui').classList.add('hidden');
+  document.getElementById('game-ui').classList.remove('hidden');
 
-document.getElementById('hud-name').innerText = window.GameState.username;
-const wpnEl = document.getElementById('hud-weapon');
-wpnEl.innerText = window.GameState.gunData.name;
-wpnEl.className = 'grade-' + window.GameState.gunData.grade;
+  document.getElementById('hud-name').innerText = window.GameState.username;
+  const wpnEl = document.getElementById('hud-weapon');
+  wpnEl.innerText = window.GameState.gunData.name;
+  wpnEl.className = 'grade-' + window.GameState.gunData.grade;
 
-init3D();
-window.GameState.isPlaying = true;
+  init3D();
+  window.GameState.isPlaying = true;
 
-if(!window.GameState.isMobile) document.body.requestPointerLock().catch(()=>{});
+  if (!window.GameState.isMobile) document.body.requestPointerLock().catch(() => {});
 
-lastTime = performance.now();
-animate();
+  lastTime = performance.now();
+  animate();
 
-setInterval(() => {
-if(window.GameState.conn && window.GameState.isPlaying) {
-window.GameState.conn.send({ type: 'update', pos: camera.position, rot: camera.rotation.y });
-}
-}, 50);
+  setInterval(() => {
+    if (window.GameState.conn && window.GameState.isPlaying) {
+      window.GameState.conn.send({ type: 'update', pos: camera.position, rot: camera.rotation.y });
+    }
+  }, 50);
 };
 
 function animate() {
-if (!window.GameState.isPlaying) return;
-requestAnimationFrame(animate);
+  if (!window.GameState.isPlaying) return;
+  requestAnimationFrame(animate);
 
-const time = performance.now();
-const delta = (time - lastTime) / 1000;
-lastTime = time;
+  const time = performance.now();
+  const delta = (time - lastTime) / 1000;
+  lastTime = time;
 
-velocity.x -= velocity.x * 10.0 * delta;
-velocity.z -= velocity.z * 10.0 * delta;
+  velocity.x -= velocity.x * 10.0 * delta;
+  velocity.z -= velocity.z * 10.0 * delta;
 
-direction.x = (Number(moveRight) - Number(moveLeft)) + joyDir.x;
-direction.z = (Number(moveBackward) - Number(moveForward)) + joyDir.y;
-if(direction.length() > 1.0) direction.normalize();
+  direction.x = (Number(moveRight) - Number(moveLeft)) + joyDir.x;
+  direction.z = (Number(moveBackward) - Number(moveForward)) + joyDir.y;
+  if (direction.length() > 1.0) direction.normalize();
 
-velocity.x -= direction.x * 400.0 * delta;
-velocity.z -= direction.z * 400.0 * delta;
+  velocity.x -= direction.x * 400.0 * delta;
+  velocity.z -= direction.z * 400.0 * delta;
 
-camera.translateX(-velocity.x * delta);
-camera.translateZ(-velocity.z * delta);
-camera.position.y = 1.6;
+  camera.translateX(-velocity.x * delta);
+  camera.translateZ(-velocity.z * delta);
+  camera.position.y = 1.6;
 
-if(myGunMesh) myGunMesh.position.y = -0.25 + Math.sin(time * 0.002) * 0.01;
+  if (myGunMesh) myGunMesh.position.y = -0.25 + Math.sin(time * 0.002) * 0.01;
 
-for(let i = tracers.length - 1; i >= 0; i--) {
-tracers[i].life -= delta * 3;
-if(tracers[i].life <= 0) {
-scene.remove(tracers[i].mesh);
-tracers.splice(i, 1);
-} else {
-tracers[i].mesh.material.opacity = tracers[i].life;
-tracers[i].mesh.material.transparent = true;
-}
-}
-composer.render();
+  for (let i = tracers.length - 1; i >= 0; i--) {
+    tracers[i].life -= delta * 3;
+    if (tracers[i].life <= 0) {
+      scene.remove(tracers[i].mesh);
+      tracers.splice(i, 1);
+    } else {
+      tracers[i].mesh.material.opacity = tracers[i].life;
+      tracers[i].mesh.material.transparent = true;
+    }
+  }
+  composer.render();
 }
 
 // 3D 모듈 로드 완료 플래그
