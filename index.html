@@ -275,7 +275,7 @@ if(!name) return alert('요원 이름을 입력해야 합니다.');
 window.GameState.username = name;
 window.GameState.peer = new Peer({ config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }]}});
 window.GameState.peer.on('error', (err) => console.log('Peer Error:', err));
-document.getElementById('welcome-msg').innerText = 접속 완료: ${name} 요원`;
+document.getElementById('welcome-msg').innerText = `접속 완료: ${name} 요원`;
 document.getElementById('login-ui').classList.add('hidden');
 document.getElementById('lobby-ui').classList.remove('hidden');
 };
