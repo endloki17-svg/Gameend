@@ -1,380 +1,344 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIVALS CLONE - V7 ULTIMATE CLIENT</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RIVALS CLONE - V7 ULTIMATE CLIENT</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Teko:wght@500;700&display=swap');
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background: #0b0c10; font-family: 'Noto Sans KR', sans-serif; color: #dfe6e9;
+      user-select: none; -webkit-user-select: none; touch-action: none;
+    }
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Teko:wght@500;700&display=swap');
+    .ui-layer {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle, rgba(11,12,16,0.85), rgba(0,0,0,0.96));
+      z-index: 20;
+    }
+    .hidden { display: none !important; }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #0b0c10; font-family: 'Noto Sans KR', sans-serif; color: #c5c6c7;
-            user-select: none; touch-action: none; -webkit-touch-callout: none;
-        }
-        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    .panel {
+      background: rgba(31, 40, 51, 0.96);
+      border: 2px solid #66fcf1;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      width: min(90vw, 560px);
+      padding: 40px 28px;
+      text-align: center;
+    }
 
-        .ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: radial-gradient(circle, rgba(11, 12, 16, 0.9) 0%, rgba(0, 0, 0, 0.98) 100%);
-            backdrop-filter: blur(15px); transition: 0.3s;
-        }
-        .hidden { display: none !important; }
+    h1 {
+      font-family: 'Teko', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      letter-spacing: 4px;
+      margin: 0;
+      color: #66fcf1;
+      text-shadow: 0 0 30px rgba(102, 252, 241, 0.5);
+      line-height: 1;
+    }
 
-        .panel {
-            background: #1f2833; border-radius: 16px; padding: 40px; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9); border: 2px solid #66fcf1;
-            width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
-        }
+    h2 {
+      font-size: 2rem; margin: 0 0 18px; color: #ffffff;
+    }
 
-        h1 { font-family: 'Teko', sans-serif; font-size: 6rem; margin: 0 0 10px 0; color: #66fcf1; letter-spacing: 5px; text-shadow: 0 0 30px rgba(102, 252, 241, 0.6); line-height: 1; }
-        h2 { font-size: 2rem; color: #fff; margin-bottom: 25px; font-weight: 900; }
-        p { color: #8892b0; line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem; }
+    p {
+      font-size: 1.05rem; line-height: 1.6; color: #b6c0d1;
+      margin: 16px 0;
+    }
 
-        input {
-            width: 85%; padding: 20px; margin: 10px 0; background: #0b0c10; border: 2px solid #45a29e;
-            border-radius: 12px; color: #66fcf1; font-size: 1.5rem; text-align: center; outline: none; font-weight: bold; transition: 0.2s;
-        }
-        input:focus { border-color: #66fcf1; box-shadow: 0 0 25px rgba(102, 252, 241, 0.5); }
+    input {
+      width: 85%; max-width: 360px;
+      padding: 18px 16px;
+      border-radius: 12px;
+      border: 2px solid #45a29e;
+      background: #0b0c10;
+      color: #66fcf1;
+      font-size: 1.3rem;
+      text-align: center;
+      outline: none;
+      margin: 12px 0;
+    }
+    input:focus {
+      border-color: #66fcf1;
+      box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
+    }
 
-        button {
-            width: 90%; padding: 20px; margin: 10px 0; background: #c5c6c7; border: none; border-radius: 12px;
-            color: #0b0c10; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: all 0.1s;
-            box-shadow: 0 6px 0px #8892b0; text-transform: uppercase;
-        }
-        button:active { transform: translateY(6px); box-shadow: 0 0px 0px #8892b0; }
-        button:hover { opacity: 0.9; }
+    button {
+      display: inline-block;
+      width: min(88%, 380px);
+      padding: 18px 22px;
+      border: none;
+      border-radius: 12px;
+      background: #c5c6c7;
+      color: #0b0c10;
+      font-size: 1.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.08s ease, opacity 0.12s ease;
+      box-shadow: 0 6px 0 rgba(136,146,176,1);
+      margin: 10px 0;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    button:active { transform: translateY(6px); box-shadow: 0 0 0 rgba(136,146,176,1); }
+    button:hover { opacity: 0.96; }
 
-        .btn-primary { background: #66fcf1; color: #0b0c10; box-shadow: 0 6px 0px #45a29e; }
-        .btn-danger { background: #ff3366; color: #fff; box-shadow: 0 6px 0px #cc0033; }
+    .btn-primary { background: #66fcf1; color: #0b0c10; box-shadow: 0 6px 0 #45a29e; }
+    .btn-danger { background: #ff3366; color: white; box-shadow: 0 6px 0 #cc0033; }
 
-        #dashboard-container { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; padding: 20px; box-sizing: border-box; }
-        .dash-nav { display: flex; justify-content: space-around; background: rgba(31, 40, 51, 0.9); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #45a29e; }
-        .dash-nav-item { font-size: 1.3rem; font-weight: bold; color: #8892b0; cursor: pointer; padding: 12px 25px; border-radius: 10px; transition: 0.2s; }
-        .dash-nav-item.active { background: #66fcf1; color: #0b0c10; box-shadow: 0 0 20px rgba(102, 252, 241, 0.5); }
+    .top-bar {
+      position: absolute;
+      top: 18px; right: 18px; z-index: 30;
+      background: rgba(11,12,16,0.9);
+      border: 2px solid #45a29e;
+      border-radius: 14px;
+      padding: 12px 22px;
+      font-size: 2rem;
+      font-family: 'Teko', sans-serif;
+    }
 
-        .dash-content { flex: 1; background: rgba(31, 40, 51, 0.95); border-radius: 15px; padding: 30px; border: 1px solid #45a29e; overflow-y: auto; position: relative; }
-        .tab-section { display: none; animation: fadeIn 0.3s ease-out; }
-        .tab-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    #dashboard-container {
+      width: min(1200px, 100%);
+      height: 100%;
+      padding: 24px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .dash-nav {
+      display: flex; justify-content: space-around; gap: 12px;
+      background: rgba(31,40,51,0.9);
+      border: 1px solid #45a29e;
+      border-radius: 15px;
+      padding: 12px;
+      margin-bottom: 18px;
+    }
+    .dash-nav-item {
+      flex: 1; text-align: center; padding: 12px 18px; border-radius: 12px;
+      cursor: pointer; color: #8892b0; font-weight: 700; transition: .2s;
+    }
+    .dash-nav-item.active {
+      background: #66fcf1; color: #0b0c10; box-shadow: 0 0 18px rgba(102,252,241,.35);
+    }
 
-        .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .store-item {
-            background: #0b0c10; border: 2px solid #1f2833; padding: 25px 15px; border-radius: 15px;
-            cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center;
-        }
-        .store-item:hover { border-color: #66fcf1; transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
-        .store-item.locked { opacity: 0.5; filter: grayscale(100%); }
-        .store-item.equipped { border-color: #ff3366; background: rgba(255,51,102,0.1); box-shadow: 0 0 20px rgba(255,51,102,0.3); }
-        .price-tag { color: #ffcc00; margin-top: 15px; font-family: 'Teko', sans-serif; font-size: 2.5rem; text-shadow: 0 0 15px rgba(255,204,0,0.6); line-height: 1; }
-        .stat-bar { width: 100%; height: 6px; background: #222; margin-top: 5px; border-radius: 3px; overflow: hidden; }
-        .stat-fill { height: 100%; background: #66fcf1; }
+    .dash-content {
+      flex: 1; background: rgba(31,40,51,0.95); border:1px solid #45a29e; border-radius: 16px;
+      padding: 28px; overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
 
-        .top-bar {
-            position: absolute; top: 20px; right: 20px; background: rgba(11, 12, 16, 0.9);
-            padding: 15px 30px; border-radius: 15px; border: 2px solid #45a29e;
-            display: flex; gap: 30px; font-size: 2rem; font-family: 'Teko', sans-serif; z-index: 25;
-        }
-
-        #crosshair-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
-        .ch-line { position: absolute; background: #66fcf1; box-shadow: 0 0 8px rgba(102, 252, 241, 0.9); transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #ch-top { width: 2px; height: 16px; left: -1px; top: -25px; }
-        #ch-bottom { width: 2px; height: 16px; left: -1px; top: 9px; }
-        #ch-left { width: 16px; height: 2px; top: -1px; left: -25px; }
-        #ch-right { width: 16px; height: 2px; top: -1px; left: 9px; }
-
-        #hitmarker {
-            position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%);
-            z-index: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none;
-            background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
-            filter: drop-shadow(0 0 8px #fff);
-        }
-
-        #hud-hp-container { position: absolute; bottom: 40px; left: 40px; width: 350px; z-index: 10; }
-        #hud-hp-text { font-size: 3rem; font-weight: 900; font-family: 'Teko', sans-serif; text-shadow: 3px 3px 0 #000; color: #fff; margin-bottom: 5px; line-height: 1; }
-        #hud-hp-bar { width: 100%; height: 25px; background: #0b0c10; border: 3px solid #1f2833; border-radius: 6px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
-        #hud-hp-fill { width: 100%; height: 100%; background: #66fcf1; transition: width 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; }
-
-        #dash-bar { width: 250px; height: 8px; background: #0b0c10; margin-top: 15px; border: 2px solid #1f2833; border-radius: 4px; overflow: hidden; }
-        #dash-fill { width: 100%; height: 100%; background: #ff3366; transition: width 0.1s linear; }
-
-        #hud-ammo-container { position: absolute; bottom: 40px; right: 50px; text-align: right; z-index: 10; }
-        #hud-ammo { font-family: 'Teko', sans-serif; font-size: 9rem; line-height: 0.8; text-shadow: 6px 6px 0 rgba(102,252,241,0.4); font-weight: bold; color: #fff; }
-        #hud-weapon { font-size: 2rem; font-weight: 900; color: #66fcf1; text-shadow: 3px 3px 0 #000; text-transform: uppercase; margin-top: 10px; letter-spacing: 3px; }
-
-        #hud-top-right { position: absolute; top: 30px; right: 30px; z-index: 10; background: rgba(11, 12, 16, 0.85); padding: 25px; border-radius: 15px; min-width: 250px; text-align: right; border: 2px solid #45a29e; }
-        #killfeed { list-style: none; padding: 0; margin: 0 0 20px 0; font-weight: bold; font-size: 1.3rem; text-shadow: 2px 2px 0 #000; }
-
-        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, transparent 20%, rgba(255,0,0,0.7) 100%); z-index: 2; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
-
-        #mobile-controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15; display: none; }
-        .touch-btn { position: absolute; background: rgba(31, 40, 51, 0.6); border: 3px solid rgba(102, 252, 241, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-weight: 900; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-
-        #joystick-zone { position: absolute; bottom: 60px; left: 60px; width: 180px; height: 180px; border-radius: 50%; border: 4px solid rgba(102, 252, 241, 0.4); background: rgba(11, 12, 16, 0.15); }
-        #joystick-knob { position: absolute; top: 50%; left: 50%; width: 70px; height: 70px; background: #66fcf1; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 20px rgba(102, 252, 241, 0.5); }
-
-        #look-zone { position: absolute; top: 0; right: 0; width: 50%; height: 100%; z-index: 14; }
-
-        .action-btns { z-index: 16; }
-        #shoot-btn { bottom: 60px; right: 60px; width: 130px; height: 130px; background: rgba(255,51,102,0.5); border-color: #ff3366; font-size: 3rem; box-shadow: 0 0 30px rgba(255,51,102,0.5); }
-        #dash-btn { bottom: 220px; right: 60px; width: 85px; height: 85px; }
-        #jump-btn { bottom: 60px; right: 220px; width: 85px; height: 85px; }
-        #reload-btn { bottom: 200px; right: 180px; width: 70px; height: 70px; font-size: 1.5rem;}
-        #swap-btn { bottom: 330px; right: 60px; width: 70px; height: 70px; font-size: 1.5rem;}
-    </style>
+    .store-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;
+      margin-top: 16px;
+    }
+    .store-item {
+      background: #0b0c10; border: 2px solid #1f2833; border-radius: 14px;
+      padding: 20px 14px; text-align: center; cursor: pointer;
+      transition: .2s ease;
+    }
+    .store-item:hover { border-color: #66fcf1; transform: translateY(-3px); }
+    .store-item.locked { opacity: 0.5; }
+    .store-item.equipped { border-color: #ff3366; }
+  </style>
 </head>
 <body oncontextmenu="return false;">
+  <div class="top-bar hidden" id="top-bar">
+    <span>🗝️</span><span id="ui-keys">0</span>
+  </div>
 
-    <div class="top-bar hidden" id="top-bar">
-        <div><span class="key-icon">🗝️</span> <span id="ui-keys">0</span></div>
+  <div id="login-ui" class="ui-layer">
+    <div class="panel">
+      <h1>RIVALS</h1>
+      <p>
+        <b>[ 초고해상도 100+ 무기 클라이언트 ]</b><br><br>
+        요원의 호출 부호를 입력하고<br>
+        아레나 네트워크에 동기화하십시오.
+      </p>
+      <input id="username-input" type="text" maxlength="8" placeholder="호출 부호 (최대 8자)" />
+      <button id="btn-login" class="btn-primary">시스템 접속</button>
     </div>
+  </div>
 
-    <div id="login-ui" class="ui-layer">
-        <div class="panel">
-            <h1>RIVALS</h1>
-            <p>
-                <b>[ 초고해상도 100+ 무기 클라이언트 ]</b><br><br>
-                요원의 호출 부호를 입력하고<br>
-                아레나 네트워크에 동기화하십시오.
-            </p>
-            <input type="text" id="username-input" placeholder="호출 부호 (최대 8자)" maxlength="8" autofocus>
-            <button class="btn-primary" id="btn-login" style="margin-top: 20px;">시스템 접속</button>
+  <div id="lobby-ui" class="ui-layer hidden">
+    <div id="dashboard-container">
+      <div class="dash-nav">
+        <div class="dash-nav-item active" data-tab="play">매치메이킹</div>
+        <div class="dash-nav-item" data-tab="store">블랙 마켓</div>
+        <div class="dash-nav-item" data-tab="profile">요원 기록</div>
+      </div>
+
+      <div class="dash-content">
+        <div id="tab-play" class="tab-section active" style="text-align:center;">
+          <h1 style="font-size: clamp(2.5rem, 5vw, 5rem);">ARENA HUB</h1>
+          <p>아레나에 진입해 적을 처치하고 열쇠를 획득하십시오.</p>
+          <div style="margin-top: 26px; background: rgba(0,0,0,0.32); border-radius:16px; padding:26px;">
+            <button id="btn-create-room" class="btn-danger">⚔️ 방 생성 및 호스트</button>
+            <p style="margin: 20px 0; color:#66fcf1; font-weight:700;">===== OR =====</p>
+            <input id="room-code-input" type="text" maxlength="3" placeholder="초대 코드 입력" style="max-width:260px; font-size:1.5rem; text-transform:uppercase;" />
+            <br />
+            <button id="btn-join-room">방 참가하기</button>
+          </div>
         </div>
+
+        <div id="tab-store" class="tab-section">
+          <h2>블랙 마켓 무기고</h2>
+          <p>열쇠로 스킨과 무기를 해금할 수 있습니다.</p>
+          <div id="store-grid" class="store-grid"></div>
+        </div>
+
+        <div id="tab-profile" class="tab-section">
+          <h2>요원 전투 기록</h2>
+          <div style="background:#0b0c10; border:1px solid #45a29e; border-radius:14px; padding:26px;">
+            <div style="font-size:1.3rem; margin-bottom:16px;">호출 부호: <span id="prof-name" style="color:#66fcf1; font-weight:900;">---</span></div>
+            <div style="font-size:1.3rem; margin-bottom:16px;">누적 처치 수: <span id="prof-kills" style="color:#ff3366; font-weight:900;">0</span> Kills</div>
+            <div style="font-size:1.3rem;">누적 열쇠 획득: <span id="prof-keys" style="color:#ffcc00; font-weight:900;">0</span> Keys</div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="lobby-ui" class="ui-layer hidden">
-        <div id="dashboard-container">
-            <div class="dash-nav">
-                <div class="dash-nav-item active" data-tab="play" onclick="window.switchTab('play', event)">매치메이킹</div>
-                <div class="dash-nav-item" data-tab="store" onclick="window.switchTab('store', event)">블랙 마켓 (무기 해금)</div>
-                <div class="dash-nav-item" data-tab="profile" onclick="window.switchTab('profile', event)">요원 기록</div>
-            </div>
+  <script>
+    const GameState = {
+      username: '',
+      keys: 0,
+      kills: 0,
+      totalKeys: 0,
+      unlockedWeapons: [0],
+      currentWeapon: 0,
+      isOffline: true
+    };
 
-            <div class="dash-content">
-                <div id="tab-play" class="tab-section active" style="text-align: center;">
-                    <h1 style="font-size: 5rem; margin-top:30px;">ARENA HUB</h1>
-                    <p style="font-size: 1.2rem;">아레나에 진입하여 적을 소탕하고 열쇠를 획득하십시오.</p>
+    function updateTopKeys() {
+      const el = document.getElementById('ui-keys');
+      if (el) el.textContent = String(GameState.keys);
+    }
 
-                    <div style="background: rgba(0,0,0,0.5); padding: 30px; border-radius: 15px; margin-top: 30px;">
-                        <button class="btn-danger" id="btn-create-room" style="max-width: 400px; padding: 25px; font-size: 1.8rem;">⚔️ 방 생성 및 호스트</button>
-                        <p style="margin: 25px 0; color:#66fcf1; font-weight:bold;">===== OR =====</p>
-                        <input type="text" id="room-code-input" placeholder="초대 코드 입력" maxlength="3" style="text-transform: uppercase; max-width: 300px; font-size: 2rem;">
-                        <br>
-                        <button id="btn-join-room" style="max-width: 300px; padding: 20px;">방 참가하기</button>
-                    </div>
-                </div>
+    function renderStore() {
+      const grid = document.getElementById('store-grid');
+      if (!grid) return;
 
-                <div id="tab-store" class="tab-section">
-                    <h2>블랙 마켓 무기고</h2>
-                    <p>적을 처치하여 얻은 열쇠로 100여 종의 다양한 스킨과 무기를 해금할 수 있습니다.</p>
-                    <div id="store-grid" class="store-grid"></div>
-                </div>
+      const sampleWeapons = [
+        { id: 0, name: '기본 권총', cost: 0, active: true },
+        { id: 1, name: '네온 돌격소총', cost: 15 },
+        { id: 2, name: '카본 저격총', cost: 30 },
+        { id: 3, name: '사막 산탄총', cost: 45 },
+        { id: 4, name: '카타나', cost: 60 }
+      ];
 
-                <div id="tab-profile" class="tab-section">
-                    <h2>요원 전투 기록</h2>
-                    <div style="background: #0b0c10; padding: 30px; border-radius: 15px; border: 1px solid #45a29e; text-align: left;">
-                        <div style="font-size: 1.5rem; margin-bottom: 15px;">호출 부호: <span id="prof-name" style="color:#66fcf1; font-weight:900;">---</span></div>
-                        <div style="font-size: 1.5rem; margin-bottom: 15px;">누적 처치 수: <span id="prof-kills" style="color:#ff3366; font-weight:900;">0</span> Kills</div>
-                        <div style="font-size: 1.5rem; margin-bottom: 15px;">누적 열쇠 획득: <span id="prof-keys" style="color:#ffcc00; font-weight:900;">0</span> Keys</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+      grid.innerHTML = '';
+      sampleWeapons.forEach((wp, idx) => {
+        const unlocked = GameState.unlockedWeapons.includes(wp.id);
+        const active = GameState.currentWeapon === wp.id;
+        const item = document.createElement('div');
+        item.className = 'store-item' + (!unlocked ? ' locked' : '') + (active ? ' equipped' : '');
+        item.innerHTML = `
+          <div style="font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 10px;">${wp.name}</div>
+          <div style="font-size: 0.9rem; color:#66fcf1; text-transform: uppercase; margin-bottom: 12px;">${active ? '장착 중' : (unlocked ? '장비 가능' : '잠금')}</div>
+          ${!unlocked ? `<div style="font-size: 1.6rem; color:#ffcc00; font-family:'Teko';">🗝️ ${wp.cost}</div>` : ''}
+        `;
 
-    <div id="room-ui" class="ui-layer hidden">
-        <div class="panel">
-            <h2>매칭 대기실</h2>
-            <p>상대방 요원에게 아래 보안 코드를 전달하십시오.</p>
-            <div id="room-code-display" style="font-family:'Teko'; font-size: 8rem; color: #66fcf1; letter-spacing: 25px; margin: 20px 0; text-shadow: 0 0 40px rgba(102, 252, 241, 0.6);">---</div>
-            <p id="connection-status" style="color: #ffcc00; font-size: 1.5rem; font-weight: bold;">신호 동기화 대기 중...</p>
-            <button id="btn-start-game" class="btn-danger hidden" style="margin-top: 40px; padding: 30px; font-size:2.2rem;">아레나 강하 시작</button>
-        </div>
-    </div>
-
-    <div id="game-ui" class="hidden">
-        <div id="damage-overlay"></div>
-        <div id="crosshair-container">
-            <div class="ch-line" id="ch-top"></div><div class="ch-line" id="ch-bottom"></div>
-            <div class="ch-line" id="ch-left"></div><div class="ch-line" id="ch-right"></div>
-            <div id="ch-dot"></div>
-        </div>
-        <div id="hitmarker"></div>
-
-        <div id="hud-hp-container">
-            <div id="hud-hp-text">HP <span id="hp-val" style="color:#66fcf1;">100</span></div>
-            <div id="hud-hp-bar"><div id="hud-hp-fill"></div></div>
-            <div id="dash-bar"><div id="dash-fill"></div></div>
-        </div>
-
-        <div id="hud-ammo-container">
-            <div id="hud-ammo">12</div>
-            <div id="hud-weapon">PISTOL</div>
-        </div>
-
-        <div id="hud-top-right">
-            <ul id="killfeed"></ul>
-            <div style="border-top: 2px solid #45a29e; padding-top: 10px; font-size: 1.5rem; font-weight: 900;">
-                Kills: <span id="hud-kills" style="color:#ff3366;">0</span>
-            </div>
-        </div>
-
-        <div id="mobile-controls">
-            <div id="look-zone"></div>
-            <div id="joystick-zone"><div id="joystick-knob"></div></div>
-            <div id="shoot-btn" class="touch-btn action-btns">FIRE</div>
-            <div id="dash-btn" class="touch-btn action-btns">DASH</div>
-            <div id="jump-btn" class="touch-btn action-btns">JUMP</div>
-            <div id="reload-btn" class="touch-btn action-btns">R</div>
-            <div id="swap-btn" class="touch-btn action-btns">SWAP</div>
-        </div>
-    </div>
-
-    <div id="respawn-ui" class="ui-layer hidden" style="background: rgba(200,0,20,0.9); z-index: 100;">
-        <h1 style="color: #fff; font-size: 10rem; text-shadow: 15px 15px 0 #000; letter-spacing: 15px;">WASTED</h1>
-        <p id="respawn-timer" style="font-size: 4rem; font-weight: 900; color:#fff; text-shadow: 5px 5px 0 #000;">3초 후 재배치...</p>
-    </div>
-
-    <div id="game-container"></div>
-
-    <!-- Inline game logic script (runs before module import) -->
-    <script>
-        const actx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if(actx.state === 'suspended') actx.resume();
-            const osc = actx.createOscillator(); const gain = actx.createGain();
-            osc.connect(gain); gain.connect(actx.destination);
-            const now = actx.currentTime;
-
-            if(type === 'click') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if(type === 'error') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
-                osc.start(now); osc.stop(now + 0.2);
+        item.addEventListener('click', () => {
+          if (!unlocked) {
+            if (GameState.keys >= wp.cost) {
+              GameState.keys -= wp.cost;
+              GameState.unlockedWeapons.push(wp.id);
+              GameState.currentWeapon = wp.id;
+              updateTopKeys();
+              renderStore();
+            } else {
+              alert('열쇠가 부족합니다.');
             }
-        }
+            return;
+          }
 
-        const GameState = {
-            username: '', peer: null, conn: null, isHost: false,
-            hp: 100, keys: 0, kills: 0, totalKeys: 0, isDead: false,
-            unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: 15, lastShotTime: 0, isReloading: false,
-            dashCooldown: 0,
-            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) || ('ontouchstart' in window)
-        };
-
-        function showUI(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
-        function hideUI(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
-
-        function canUseP2PNetwork() {
-            const hasPeer = typeof window.Peer === 'function';
-            const secureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-            return hasPeer && secureContext;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnLogin = document.getElementById('btn-login');
-            if (!btnLogin) {
-                console.error('Login button not found');
-                return;
-            }
-
-            btnLogin.addEventListener('click', () => {
-                console.log('Login button clicked');
-                playSound('click');
-                const nameInput = document.getElementById('username-input');
-                const name = nameInput ? nameInput.value.trim() : '';
-                
-                if(!name) { 
-                    playSound('error');
-                    alert('호출 부호를 입력하십시오.');
-                    return;
-                }
-                
-                GameState.username = name;
-                console.log('Username set to:', name);
-
-                if (canUseP2PNetwork()) {
-                    try { 
-                        GameState.peer = new Peer(); 
-                        console.log('PeerJS initialized');
-                    }
-                    catch(e) { 
-                        console.error('PeerJS initialization failed:', e); 
-                        GameState.peer = null; 
-                    }
-                } else {
-                    console.warn('PeerJS is unavailable in current browser context. Running offline mode.');
-                    GameState.peer = null;
-                }
-
-                if (!GameState.peer) {
-                    console.log('Entering offline mode');
-                    const statusEl = document.getElementById('connection-status');
-                    if (statusEl) {
-                        statusEl.innerText = '오프라인 모드: 로컬 데모 실행';
-                        statusEl.style.color = '#66fcf1';
-                    }
-                    showUI('top-bar');
-                    hideUI('login-ui');
-                    showUI('lobby-ui');
-                    
-                    initializeGameState();
-                    return;
-                }
-
-                showUI('top-bar');
-                hideUI('login-ui');
-                showUI('lobby-ui');
-                console.log('Switched to lobby UI');
-                
-                initializeGameState();
-            });
-
-            // Allow Enter key to submit
-            const usernameInput = document.getElementById('username-input');
-            if (usernameInput) {
-                usernameInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        btnLogin.click();
-                    }
-                });
-            }
+          GameState.currentWeapon = wp.id;
+          renderStore();
         });
 
-        function initializeGameState() {
-            console.log('Game state initialized for:', GameState.username);
-            // Load game module after successful login
-            import('./game.js').catch(err => {
-                console.warn('Game module not found, continuing with lobby mode:', err);
-            });
+        grid.appendChild(item);
+      });
+    }
+
+    function switchTab(tabName, event) {
+      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.dash-nav-item').forEach(el => el.classList.remove('active'));
+
+      const section = document.getElementById(`tab-${tabName}`);
+      if (section) section.classList.add('active');
+
+      const nav = event && event.currentTarget ? event.currentTarget : document.querySelector(`.dash-nav-item[data-tab="${tabName}"]`);
+      if (nav) nav.classList.add('active');
+
+      if (tabName === 'profile') {
+        document.getElementById('prof-name').textContent = GameState.username || '---';
+        document.getElementById('prof-kills').textContent = String(GameState.kills);
+        document.getElementById('prof-keys').textContent = String(GameState.totalKeys);
+      }
+
+      if (tabName === 'store') renderStore();
+    }
+
+    function doLogin() {
+      const input = document.getElementById('username-input');
+      const name = (input ? input.value : '').trim();
+      if (!name) {
+        alert('호출 부호를 입력하십시오.');
+        if (input) input.focus();
+        return;
+      }
+
+      GameState.username = name;
+      GameState.isOffline = true;
+      updateTopKeys();
+
+      document.getElementById('login-ui').classList.add('hidden');
+      document.getElementById('lobby-ui').classList.remove('hidden');
+      document.getElementById('top-bar').classList.remove('hidden');
+      document.getElementById('prof-name').textContent = GameState.username;
+      renderStore();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnLogin = document.getElementById('btn-login');
+      if (btnLogin) {
+        btnLogin.addEventListener('click', doLogin);
+      }
+
+      const input = document.getElementById('username-input');
+      if (input) {
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') doLogin();
+        });
+      }
+
+      document.querySelectorAll('.dash-nav-item').forEach((item) => {
+        item.addEventListener('click', (event) => switchTab(item.dataset.tab, event));
+      });
+
+      document.getElementById('btn-create-room')?.addEventListener('click', () => {
+        alert('오프라인 모드: 로컬 데모 실행');
+      });
+
+      document.getElementById('btn-join-room')?.addEventListener('click', () => {
+        const roomCode = document.getElementById('room-code-input')?.value?.trim() || '';
+        if (!roomCode) {
+          alert('초대 코드를 입력하십시오.');
+          return;
         }
+        alert('입력된 방 코드: ' + roomCode + ' (오프라인 데모)');
+      });
 
-        window.switchTab = function(tabName, event) {
-            playSound('click');
-            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.dash-nav-item').forEach(el => el.classList.remove('active'));
-            const section = document.getElementById(`tab-${tabName}`);
-            if (section) section.classList.add('active');
+      updateTopKeys();
+      renderStore();
+    });
 
-            const button = event && event.currentTarget ? event.currentTarget : document.querySelector(`.dash-nav-item[data-tab="${tabName}"]`);
-            if (button) button.classList.add('active');
-        };
-    </script>
-
+    window.switchTab = switchTab;
+  </script>
 </body>
 </html>
