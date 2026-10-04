@@ -55,6 +55,7 @@
             box-shadow: 0 6px 0px #8892b0; text-transform: uppercase;
         }
         button:active { transform: translateY(6px); box-shadow: 0 0px 0px #8892b0; }
+        button:hover { opacity: 0.9; }
 
         .btn-primary { background: #66fcf1; color: #0b0c10; box-shadow: 0 6px 0px #45a29e; }
         .btn-danger { background: #ff3366; color: #fff; box-shadow: 0 6px 0px #cc0033; }
@@ -148,7 +149,7 @@
                 요원의 호출 부호를 입력하고<br>
                 아레나 네트워크에 동기화하십시오.
             </p>
-            <input type="text" id="username-input" placeholder="호출 부호 (최대 8자)" maxlength="8">
+            <input type="text" id="username-input" placeholder="호출 부호 (최대 8자)" maxlength="8" autofocus>
             <button class="btn-primary" id="btn-login" style="margin-top: 20px;">시스템 접속</button>
         </div>
     </div>
@@ -248,13 +249,8 @@
 
     <div id="game-container"></div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { Engine, startEngine, buildWeaponModel, createEnemyModel, updateEnemyUI, applyPhysics } from './engine.js';
-
+    <!-- Inline game logic script (runs before module import) -->
+    <script>
         const actx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if(actx.state === 'suspended') actx.resume();
@@ -266,90 +262,107 @@
                 osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
                 gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
                 osc.start(now); osc.stop(now + 0.05);
-            } else if(type === 'buy') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.1);
-                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
             } else if(type === 'error') {
                 osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
                 gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
                 osc.start(now); osc.stop(now + 0.2);
-            } else if(type === 'shoot') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
-                gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if(type === 'hit') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1200, now);
-                gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if(type === 'dash') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-                gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
-                osc.start(now); osc.stop(now + 0.2);
-            }
-        }
-
-        const WeaponDB = [];
-        const weaponTypes = [
-            { arch: 'pistol', nameBase: '권총', dmg: 15, fireRate: 250, mag: 15, auto: false, recoil: 0.03, spread: 0.01, range: 100 },
-            { arch: 'ar', nameBase: '돌격 소총', dmg: 12, fireRate: 90, mag: 30, auto: true, recoil: 0.02, spread: 0.02, range: 150 },
-            { arch: 'sniper', nameBase: '저격총', dmg: 85, fireRate: 1200, mag: 5, auto: false, recoil: 0.2, spread: 0.001, range: 300 },
-            { arch: 'shotgun', nameBase: '산탄총', dmg: 10, fireRate: 800, mag: 6, auto: false, recoil: 0.15, spread: 0.1, range: 40 },
-            { arch: 'melee', nameBase: '카타나', dmg: 60, fireRate: 400, mag: 999, auto: true, recoil: 0, spread: 0, range: 5 }
-        ];
-
-        const skinTypes = [
-            { id: 'matte', name: '기본', costMulti: 1, glow: 0x00ffff },
-            { id: 'carbon', name: '카본', costMulti: 2, glow: 0xff3366 },
-            { id: 'camo_desert', name: '사막 위장', costMulti: 3, glow: 0xffaa00 },
-            { id: 'neon_hex', name: '네온 헥사곤', costMulti: 5, glow: 0x66fcf1 },
-            { id: 'blood_web', name: '블러드 웹', costMulti: 8, glow: 0xff0000 },
-            { id: 'gold_engraved', name: '황금 각인', costMulti: 15, glow: 0xffd700 }
-        ];
-
-        let wpCounter = 0;
-        for(let type of weaponTypes) {
-            for(let skin of skinTypes) {
-                let cost = Math.floor((type.dmg * skin.costMulti) / 5);
-                if(wpCounter === 0) cost = 0;
-
-                WeaponDB.push({
-                    id: wpCounter,
-                    archetype: type.arch,
-                    name: `${skin.name} ${type.nameBase}`,
-                    skin: skin.id,
-                    glowColor: skin.glow,
-                    cost: cost,
-                    damage: type.dmg,
-                    fireRate: type.fireRate,
-                    mag: type.mag,
-                    auto: type.auto,
-                    recoil: type.recoil,
-                    spread: type.spread,
-                    range: type.range
-                });
-                wpCounter++;
             }
         }
 
         const GameState = {
             username: '', peer: null, conn: null, isHost: false,
             hp: 100, keys: 0, kills: 0, totalKeys: 0, isDead: false,
-            unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: WeaponDB[0].mag, lastShotTime: 0, isReloading: false,
+            unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: 15, lastShotTime: 0, isReloading: false,
             dashCooldown: 0,
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) || ('ontouchstart' in window)
         };
-        let lastTime = 0;
 
-        function getCurWeapon() { return WeaponDB[GameState.equippedWeaponIndex]; }
+        function showUI(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+        function hideUI(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+
         function canUseP2PNetwork() {
             const hasPeer = typeof window.Peer === 'function';
             const secureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
             return hasPeer && secureContext;
         }
 
-        function showUI(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
-        function hideUI(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLogin = document.getElementById('btn-login');
+            if (!btnLogin) {
+                console.error('Login button not found');
+                return;
+            }
+
+            btnLogin.addEventListener('click', () => {
+                console.log('Login button clicked');
+                playSound('click');
+                const nameInput = document.getElementById('username-input');
+                const name = nameInput ? nameInput.value.trim() : '';
+                
+                if(!name) { 
+                    playSound('error');
+                    alert('호출 부호를 입력하십시오.');
+                    return;
+                }
+                
+                GameState.username = name;
+                console.log('Username set to:', name);
+
+                if (canUseP2PNetwork()) {
+                    try { 
+                        GameState.peer = new Peer(); 
+                        console.log('PeerJS initialized');
+                    }
+                    catch(e) { 
+                        console.error('PeerJS initialization failed:', e); 
+                        GameState.peer = null; 
+                    }
+                } else {
+                    console.warn('PeerJS is unavailable in current browser context. Running offline mode.');
+                    GameState.peer = null;
+                }
+
+                if (!GameState.peer) {
+                    console.log('Entering offline mode');
+                    const statusEl = document.getElementById('connection-status');
+                    if (statusEl) {
+                        statusEl.innerText = '오프라인 모드: 로컬 데모 실행';
+                        statusEl.style.color = '#66fcf1';
+                    }
+                    showUI('top-bar');
+                    hideUI('login-ui');
+                    showUI('lobby-ui');
+                    
+                    initializeGameState();
+                    return;
+                }
+
+                showUI('top-bar');
+                hideUI('login-ui');
+                showUI('lobby-ui');
+                console.log('Switched to lobby UI');
+                
+                initializeGameState();
+            });
+
+            // Allow Enter key to submit
+            const usernameInput = document.getElementById('username-input');
+            if (usernameInput) {
+                usernameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        btnLogin.click();
+                    }
+                });
+            }
+        });
+
+        function initializeGameState() {
+            console.log('Game state initialized for:', GameState.username);
+            // Load game module after successful login
+            import('./game.js').catch(err => {
+                console.warn('Game module not found, continuing with lobby mode:', err);
+            });
+        }
 
         window.switchTab = function(tabName, event) {
             playSound('click');
@@ -360,524 +373,8 @@
 
             const button = event && event.currentTarget ? event.currentTarget : document.querySelector(`.dash-nav-item[data-tab="${tabName}"]`);
             if (button) button.classList.add('active');
-
-            if(tabName === 'profile') {
-                const nameEl = document.getElementById('prof-name'); if (nameEl) nameEl.innerText = GameState.username;
-                const killsEl = document.getElementById('prof-kills'); if (killsEl) killsEl.innerText = GameState.kills;
-                const keysEl = document.getElementById('prof-keys'); if (keysEl) keysEl.innerText = GameState.totalKeys;
-            }
-            if(tabName === 'store') renderStore();
         };
-
-        function updateTopKeys() {
-            const el = document.getElementById('ui-keys');
-            if(el) {
-                el.innerText = GameState.keys;
-                el.style.transform = 'scale(1.5)';
-                setTimeout(()=> el.style.transform = 'scale(1)', 200);
-            }
-        }
-
-        document.getElementById('btn-login').addEventListener('click', () => {
-            playSound('click');
-            const name = document.getElementById('username-input').value.trim();
-            if(!name) { playSound('error'); return alert('호출 부호를 입력하십시오.'); }
-            GameState.username = name;
-
-            if (canUseP2PNetwork()) {
-                try { GameState.peer = new Peer(); }
-                catch(e) { console.error(e); GameState.peer = null; }
-            } else {
-                console.warn('PeerJS is unavailable in current browser context. Running offline demo-compatible mode.');
-                GameState.peer = null;
-            }
-
-            if (!GameState.peer) {
-                const statusEl = document.getElementById('connection-status');
-                if (statusEl) {
-                    statusEl.innerText = '오프라인 모드: 로컬 데모 실행';
-                    statusEl.style.color = '#66fcf1';
-                }
-                showUI('top-bar'); hideUI('login-ui'); showUI('lobby-ui');
-                return;
-            }
-
-            showUI('top-bar'); hideUI('login-ui'); showUI('lobby-ui');
-        });
-
-        function renderStore() {
-            const grid = document.getElementById('store-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            WeaponDB.forEach((wp, idx) => {
-                const isUnlocked = GameState.unlockedWeapons.includes(wp.id);
-                const isEquipped = GameState.equippedWeaponIndex === idx;
-
-                const div = document.createElement('div');
-                div.className = `store-item ${!isUnlocked ? 'locked' : ''} ${isEquipped ? 'equipped' : ''}`;
-
-                let statDmg = Math.min((wp.damage / 100) * 100, 100);
-                let statFR = Math.min((1000 / wp.fireRate) * 10, 100);
-
-                let statusText = isEquipped ? '장착 중' : (isUnlocked ? '장비하기' : '구매하기');
-                div.innerHTML = `
-                    <div style="font-size:1.5rem; color:#fff; font-weight:900; text-shadow: 1px 1px 0 #000;">${wp.name}</div>
-                    <div style="font-size:0.9rem; color:#66fcf1; margin-top:5px; text-transform:uppercase;">[ TYPE: ${wp.archetype} ]</div>
-
-                    <div style="width:100%; margin-top:15px; text-align:left; font-size:0.8rem; color:#aaa;">
-                        파괴력
-                        <div class="stat-bar"><div class="stat-fill" style="width:${statDmg}%; background:#ff3366;"></div></div>
-                        연사력
-                        <div class="stat-bar"><div class="stat-fill" style="width:${statFR}%; background:#00ffff;"></div></div>
-                    </div>
-
-                    ${!isUnlocked ? `<div class="price-tag">🗝️ ${wp.cost}</div>` : ''}
-                    <div style="margin-top:15px; font-size:1.2rem; font-weight:bold; color:${isEquipped ? '#ff3366' : '#66fcf1'};">[ ${statusText} ]</div>
-                `;
-
-                div.addEventListener('click', () => {
-                    if(isUnlocked) {
-                        playSound('click');
-                        GameState.equippedWeaponIndex = idx; GameState.ammo = wp.mag;
-                        renderStore(); updateHUD();
-                        if (Engine.scene) buildWeaponModel(wp);
-                    } else {
-                        if(GameState.keys >= wp.cost) {
-                            playSound('buy');
-                            GameState.keys -= wp.cost; GameState.unlockedWeapons.push(wp.id);
-                            updateTopKeys(); renderStore();
-                        } else { playSound('error'); alert('열쇠가 부족합니다!'); }
-                    }
-                });
-                grid.appendChild(div);
-            });
-        }
-
-        function setupNetworkEvents() {
-            if (!GameState.conn) return;
-            GameState.conn.on('data', (data) => {
-                if (data.type === 'start') launchGame();
-                else if (data.type === 'update') updateRemotePlayer(data);
-                else if (data.type === 'shoot') {
-                    const mat = new THREE.LineBasicMaterial({ color: data.color, linewidth: 3, transparent: true, opacity: 1 });
-                    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-                        new THREE.Vector3(data.start.x, data.start.y, data.start.z),
-                        new THREE.Vector3(data.end.x, data.end.y, data.end.z)
-                    ]), mat);
-                    Engine.scene.add(line); Engine.tracers.push({ mesh: line, life: 0.5 });
-                    playSound('shoot');
-                }
-                else if (data.type === 'hit') handleDamage(data);
-                else if (data.type === 'killmsg') handleKillMsg(data);
-                else if (data.type === 'respawn') {
-                    if(Engine.enemies[data.name]) { Engine.enemies[data.name].hp = 100; updateEnemyUI(data.name); }
-                }
-            });
-        }
-
-        document.getElementById('btn-create-room').addEventListener('click', () => {
-            playSound('click');
-            if(!GameState.peer) {
-                alert('네트워크 연결이 불가해 오프라인 모드로 바로 진입합니다.');
-                launchGame();
-                return;
-            }
-            const code = Math.random().toString(36).substring(2, 5).toUpperCase();
-            GameState.peer.destroy(); GameState.peer = new Peer('rclone-' + code);
-
-            GameState.peer.on('open', () => {
-                document.getElementById('room-code-display').innerText = code;
-                hideUI('lobby-ui'); showUI('room-ui');
-                GameState.isHost = true;
-            });
-            GameState.peer.on('connection', (conn) => {
-                GameState.conn = conn; setupNetworkEvents();
-                document.getElementById('connection-status').innerText = '상대방 접속 완료!';
-                document.getElementById('connection-status').style.color = '#66fcf1';
-                showUI('btn-start-game');
-            });
-        });
-
-        document.getElementById('btn-join-room').addEventListener('click', () => {
-            playSound('click');
-            if(!GameState.peer) {
-                alert('네트워크 연결이 불가해 오프라인 모드로 바로 진입합니다.');
-                launchGame();
-                return;
-            }
-            const code = document.getElementById('room-code-input').value.toUpperCase();
-            if(!code) return;
-            GameState.conn = GameState.peer.connect('rclone-' + code);
-            GameState.conn.on('open', () => {
-                setupNetworkEvents();
-                document.getElementById('room-code-display').innerText = code;
-                hideUI('lobby-ui'); showUI('room-ui');
-                document.getElementById('connection-status').innerText = '방장 연결 성공. 강하 대기중...';
-                document.getElementById('connection-status').style.color = '#66fcf1';
-            });
-            GameState.conn.on('error', () => { playSound('error'); alert('해당 코드를 가진 방을 찾을 수 없습니다.'); });
-        });
-
-        document.getElementById('btn-start-game').addEventListener('click', () => {
-            playSound('click');
-            if (GameState.conn) GameState.conn.send({ type: 'start' });
-            launchGame();
-        });
-
-        function updateHUD() {
-            try {
-                const hp = Math.floor(GameState.hp);
-                const hpVal = document.getElementById('hp-val'); if (hpVal) hpVal.innerText = hp;
-                const fill = document.getElementById('hud-hp-fill');
-                if (fill) {
-                    fill.style.width = `${hp}%`;
-                    fill.style.background = hp > 50 ? '#66fcf1' : hp > 20 ? '#ffcc00' : '#ff3366';
-                }
-
-                const wp = getCurWeapon();
-                const weaponEl = document.getElementById('hud-weapon'); if (weaponEl) weaponEl.innerText = wp.name;
-                const ammoEl = document.getElementById('hud-ammo'); if (ammoEl) ammoEl.innerText = (wp.archetype === 'melee' || wp.archetype === 'heal') ? '∞' : GameState.ammo;
-                const killsEl = document.getElementById('hud-kills'); if (killsEl) killsEl.innerText = GameState.kills;
-            } catch(e) {}
-        }
-
-        function tryAction() {
-            if(GameState.isDead || GameState.isReloading) return;
-            const now = performance.now(); const wp = getCurWeapon();
-            if (now - GameState.lastShotTime < wp.fireRate) return;
-
-            if(wp.archetype !== 'melee') {
-                if (GameState.ammo <= 0) { if(now - GameState.lastShotTime > 500) { playSound('reload'); GameState.lastShotTime = now; } return; }
-                GameState.ammo--; updateHUD(); playSound('shoot');
-
-                const cls = document.getElementsByClassName('ch-line');
-                if(cls.length === 4) {
-                    cls[0].style.transform = `translateY(-20px)`; cls[1].style.transform = `translateY(20px)`;
-                    cls[2].style.transform = `translateX(-20px)`; cls[3].style.transform = `translateX(20px)`;
-                    setTimeout(()=>{
-                        cls[0].style.transform = `translateY(0)`; cls[1].style.transform = `translateY(0)`;
-                        cls[2].style.transform = `translateX(0)`; cls[3].style.transform = `translateX(0)`;
-                    }, 100);
-                }
-
-                Engine.recoilTarget.z += wp.recoil * 1.5; Engine.recoilTarget.x += wp.recoil * 0.8;
-
-                const euler = new THREE.Euler(0,0,0,'YXZ');
-                euler.setFromQuaternion(Engine.camera.quaternion);
-                euler.x += wp.recoil * 0.2;
-                Engine.camera.quaternion.setFromEuler(euler);
-
-                const rc = new THREE.Raycaster(); const center = new THREE.Vector2(0,0);
-                center.x += (Math.random()-0.5) * wp.spread; center.y += (Math.random()-0.5) * wp.spread;
-                rc.setFromCamera(center, Engine.camera);
-
-                let targetPoint; let hitEnemyId = null; let isHeadshot = false;
-                const enemyMeshes = [];
-                for(let id in Engine.enemies) {
-                    const eMesh = Engine.enemies[id].mesh;
-                    enemyMeshes.push(eMesh.children[0]);
-                    enemyMeshes.push(eMesh.children[2]);
-                    eMesh.children[0].userData = {id: id, type: 'head'};
-                    eMesh.children[2].userData = {id: id, type: 'body'};
-                }
-                const allTargets = [...Engine.collidables, ...enemyMeshes];
-                const intersects = rc.intersectObjects(allTargets, false);
-
-                if(intersects.length > 0) {
-                    targetPoint = intersects[0].point; const hitObj = intersects[0].object;
-                    if(hitObj.userData && hitObj.userData.id) {
-                        hitEnemyId = hitObj.userData.id;
-                        if(hitObj.userData.type === 'head') isHeadshot = true;
-                    }
-                } else { targetPoint = rc.ray.direction.clone().multiplyScalar(wp.range).add(Engine.camera.position); }
-
-                const startPoint = new THREE.Vector3(); Engine.gunBarrelEnd.getWorldPosition(startPoint);
-                const mat = new THREE.LineBasicMaterial({ color: wp.glowColor, linewidth: 3, transparent: true, opacity: 1 });
-                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([startPoint, targetPoint]), mat);
-                Engine.scene.add(line); Engine.tracers.push({ mesh: line, life: 0.5 });
-
-                if(GameState.conn) {
-                    GameState.conn.send({ type: 'shoot', start: startPoint, end: targetPoint, color: wp.glowColor });
-                    if(hitEnemyId) {
-                        let finalDmg = isHeadshot ? wp.damage * 2 : wp.damage;
-                        GameState.conn.send({ type: 'hit', target: hitEnemyId, damage: finalDmg, isHead: isHeadshot });
-                        const hm = document.getElementById('hitmarker');
-                        if(hm) { hm.style.opacity = 1; hm.style.filter = isHeadshot ? 'drop-shadow(0 0 8px red)' : 'drop-shadow(0 0 5px white)'; setTimeout(() => hm.style.opacity = 0, 150); }
-                        playSound('hit');
-                    }
-                }
-
-            } else if(wp.archetype === 'melee') {
-                playSound('shoot');
-                Engine.recoilTarget.x = -Math.PI/3; Engine.recoilTarget.y = -0.3; setTimeout(()=> { Engine.recoilTarget.set(0,0,0); }, 150);
-
-                const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0,0), Engine.camera);
-                const enemyMeshes = [];
-                for(let id in Engine.enemies) { enemyMeshes.push(Engine.enemies[id].mesh.children[2]); Engine.enemies[id].mesh.children[2].userData = {id: id}; }
-                const intersects = rc.intersectObjects(enemyMeshes, false);
-                if(intersects.length > 0 && intersects[0].distance <= wp.range) {
-                    const hitObj = intersects[0].object;
-                    if(hitObj.userData && hitObj.userData.id) {
-                        if (GameState.conn) GameState.conn.send({ type: 'hit', target: hitObj.userData.id, damage: wp.damage, isHead: false });
-                        const hm = document.getElementById('hitmarker');
-                        if(hm) { hm.style.opacity = 1; hm.style.filter = 'drop-shadow(0 0 5px white)'; setTimeout(() => hm.style.opacity = 0, 150); }
-                        playSound('hit');
-                    }
-                }
-            }
-            GameState.lastShotTime = now;
-        }
-
-        function handleDamage(data) {
-            if(data.target === GameState.username && !GameState.isDead) {
-                GameState.hp -= data.damage; updateHUD();
-                const overlay = document.getElementById('damage-overlay');
-                if(overlay) { overlay.style.opacity = 1; setTimeout(() => overlay.style.opacity = 0, 200); }
-
-                const euler = new THREE.Euler(0,0,0,'YXZ');
-                euler.setFromQuaternion(Engine.camera.quaternion);
-                euler.x += (Math.random()-0.5)*0.15; euler.y += (Math.random()-0.5)*0.15;
-                Engine.camera.quaternion.setFromEuler(euler);
-
-                if(GameState.hp <= 0) {
-                    GameState.isDead = true; GameState.hp = 0; updateHUD();
-                    if (GameState.conn) GameState.conn.send({ type: 'killmsg', killer: 'Enemy', victim: GameState.username });
-                    handleKillMsg({killer: 'Enemy', victim: GameState.username});
-
-                    const rUI = document.getElementById('respawn-ui'); if(rUI) rUI.classList.remove('hidden');
-                    if(document.pointerLockElement) document.exitPointerLock();
-                    Engine.camera.position.y = 0.2; Engine.camera.rotation.z = Math.PI / 4;
-
-                    let timeLeft = 3; const timerEl = document.getElementById('respawn-timer');
-                    const interval = setInterval(() => {
-                        timeLeft--; if(timerEl) timerEl.innerText = `${timeLeft}초 후 재배치...`;
-                        if(timeLeft <= 0) {
-                            clearInterval(interval);
-                            GameState.isDead = false; GameState.hp = 100; GameState.ammo = getCurWeapon().mag;
-                            updateHUD();
-                            Engine.camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
-                            Engine.camera.rotation.set(0, Engine.camera.position.z > 0 ? Math.PI : 0, 0);
-                            if(rUI) rUI.classList.add('hidden');
-                            if (GameState.conn) GameState.conn.send({ type: 'respawn', name: GameState.username });
-                        }
-                    }, 1000);
-                }
-            } else {
-                if(Engine.enemies[data.target]) {
-                    Engine.enemies[data.target].torso.material.emissive.setHex(0xff0000);
-                    setTimeout(() => { if(Engine.enemies[data.target]) Engine.enemies[data.target].torso.material.emissive.setHex(0x000000); }, 100);
-                }
-            }
-        }
-
-        function handleKillMsg(data) {
-            const ul = document.getElementById('killfeed');
-            if(ul) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span style="color:#66fcf1">${data.killer}</span> 🔫 <span style="color:#ff3366">${data.victim}</span>`;
-                ul.appendChild(li); setTimeout(() => li.remove(), 4000);
-            }
-            if(data.killer === GameState.username) {
-                GameState.kills++; GameState.keys += 2; GameState.totalKeys += 2;
-                const elKeys = document.getElementById('ui-keys'); if(elKeys) elKeys.innerText = GameState.keys;
-                updateHUD();
-            }
-        }
-
-        function updateRemotePlayer(data) {
-            if(!Engine.enemies[data.name]) createEnemyModel(data.name, data.name, 'carbon');
-            const e = Engine.enemies[data.name];
-            e.mesh.position.lerp(new THREE.Vector3(data.pos.x, data.pos.y, data.pos.z), 0.3);
-            e.mesh.rotation.y = data.rot;
-            if(e.hp !== data.hp) { e.hp = data.hp; updateEnemyUI(data.name); }
-        }
-
-        function launchGame() {
-            hideUI('room-ui'); hideUI('top-bar'); showUI('game-ui');
-            GameState.ammo = getCurWeapon().mag; updateHUD();
-
-            startEngine(document.getElementById('game-container'));
-            buildWeaponModel(getCurWeapon());
-
-            Engine.camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
-            Engine.camera.rotation.set(0, Engine.camera.position.z > 0 ? Math.PI : 0, 0);
-
-            bindInputEvents();
-            lastTime = performance.now();
-            requestAnimationFrame(gameLoop);
-
-            setInterval(() => {
-                if(GameState.conn && !GameState.isDead) {
-                    GameState.conn.send({ type: 'update', name: GameState.username, hp: GameState.hp, pos: Engine.camera.position, rot: Engine.camera.rotation.y });
-                }
-            }, 50);
-        }
-
-        function bindInputEvents() {
-            if (GameState.isMobile) {
-                const mobileControls = document.getElementById('mobile-controls'); if (mobileControls) mobileControls.style.display = 'block';
-
-                function bindBtn(id, field) {
-                    const btn = document.getElementById(id);
-                    if(!btn) return;
-                    btn.addEventListener('touchstart', (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(0.9)'; Engine.input[field] = true; }, {passive:false});
-                    const end = (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(1)'; Engine.input[field] = false; };
-                    btn.addEventListener('touchend', end, {passive:false}); btn.addEventListener('touchcancel', end, {passive:false});
-                }
-
-                bindBtn('shoot-btn', 'shoot');
-                const btnJ = document.getElementById('jump-btn');
-                btnJ.addEventListener('touchstart', (e)=>{ e.preventDefault(); Engine.input.jump = true; }, {passive:false});
-                btnJ.addEventListener('touchend', (e)=>{ e.preventDefault(); Engine.input.jump = false; }, {passive:false});
-
-                const btnD = document.getElementById('dash-btn');
-                btnD.addEventListener('touchstart', (e)=>{
-                    e.preventDefault();
-                    if(GameState.dashCooldown <= 0 && !GameState.isDead) {
-                        playSound('dash');
-                        let dashDir = new THREE.Vector3();
-                        if(Engine.joyDir.x !== 0 || Engine.joyDir.y !== 0) {
-                            dashDir.x = Engine.joyDir.x; dashDir.z = Engine.joyDir.y;
-                            dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, Engine.camera.rotation.y, 0));
-                        } else {
-                            Engine.camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize();
-                        }
-                        Engine.velocity.x += dashDir.x * 80; Engine.velocity.z += dashDir.z * 80;
-                        GameState.dashCooldown = 2.0;
-                    }
-                }, {passive:false});
-
-                const btnR = document.getElementById('reload-btn');
-                btnR.addEventListener('touchstart', (e)=>{
-                    e.preventDefault();
-                    if(GameState.isReloading || GameState.isDead) return;
-                    const wp = getCurWeapon();
-                    if(wp.archetype === 'melee' || wp.archetype === 'heal' || GameState.ammo === wp.mag) return;
-                    GameState.isReloading = true; playSound('reload');
-                    const ammoEl = document.getElementById('hud-ammo'); if(ammoEl) ammoEl.innerText = 'R';
-                    Engine.recoilTarget.y = -0.5; Engine.recoilTarget.x = Math.PI / 4;
-                    setTimeout(() => { GameState.ammo = wp.mag; GameState.isReloading = false; Engine.recoilTarget.set(0,0,0); updateHUD(); }, 1000);
-                }, {passive:false});
-
-                const btnS = document.getElementById('swap-btn');
-                btnS.addEventListener('touchstart', (e)=>{
-                    e.preventDefault();
-                    if(GameState.unlockedWeapons.length <= 1 || GameState.isDead) return;
-                    let currentInvIdx = GameState.unlockedWeapons.indexOf(getCurWeapon().id);
-                    currentInvIdx = (currentInvIdx + 1) % GameState.unlockedWeapons.length;
-                    GameState.equippedWeaponIndex = WeaponDB.findIndex(w => w.id === GameState.unlockedWeapons[currentInvIdx]);
-                    GameState.ammo = getCurWeapon().mag; GameState.isReloading = false;
-                    buildWeaponModel(getCurWeapon()); updateHUD();
-                }, {passive:false});
-
-                let joyId = null; const jz = document.getElementById('joystick-zone'), jk = document.getElementById('joystick-knob');
-                jz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(joyId === null) { joyId = t.identifier; updateJoy(t); break; } } }, {passive:false});
-                jz.addEventListener('touchmove', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { updateJoy(t); break; } } }, {passive:false});
-                const endJoy = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { joyId = null; Engine.joyDir={x:0,y:0}; jk.style.transform='translate(-50%, -50%)'; break; } } };
-                jz.addEventListener('touchend', endJoy, {passive:false}); jz.addEventListener('touchcancel', endJoy, {passive:false});
-                function updateJoy(t) {
-                    const r = jz.getBoundingClientRect(); const cx = r.left + r.width/2, cy = r.top + r.height/2;
-                    let dx = t.clientX - cx, dy = t.clientY - cy; const dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist > 50) { dx = (dx/dist)*50; dy = (dy/dist)*50; }
-                    jk.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-                    Engine.joyDir.x = dx/50; Engine.joyDir.y = dy/50;
-                }
-
-                let lookId = null; let lastLookX = 0, lastLookY = 0;
-                const lz = document.getElementById('look-zone');
-                lz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(lookId === null) { lookId = t.identifier; lastLookX = t.clientX; lastLookY = t.clientY; break; } } }, {passive:false});
-                lz.addEventListener('touchmove', (e) => { e.preventDefault();
-                    for(let t of e.changedTouches) {
-                        if(t.identifier === lookId) {
-                            Engine.lookDelta.x = t.clientX - lastLookX;
-                            Engine.lookDelta.y = t.clientY - lastLookY;
-                            lastLookX = t.clientX; lastLookY = t.clientY; break;
-                        }
-                    }
-                }, {passive:false});
-                const endLook = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === lookId) { lookId = null; break; } } };
-                lz.addEventListener('touchend', endLook, {passive:false}); lz.addEventListener('touchcancel', endLook, {passive:false});
-
-            } else {
-                document.addEventListener('keydown', (e) => {
-                    if(e.code==='KeyW') Engine.input.forward=true; if(e.code==='KeyS') Engine.input.backward=true;
-                    if(e.code==='KeyA') Engine.input.left=true; if(e.code==='KeyD') Engine.input.right=true;
-                    if(e.code==='Space') Engine.input.jump=true;
-                    if(e.code==='KeyQ' || e.code==='ShiftLeft') {
-                        if(GameState.dashCooldown <= 0 && !GameState.isDead) {
-                            playSound('dash');
-                            let dashDir = new THREE.Vector3();
-                            if(Engine.input.forward || Engine.input.backward || Engine.input.left || Engine.input.right) {
-                                dashDir.x = (Engine.input.right?1:0) - (Engine.input.left?1:0);
-                                dashDir.z = (Engine.input.backward?1:0) - (Engine.input.forward?1:0);
-                                dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, Engine.camera.rotation.y, 0));
-                            } else {
-                                Engine.camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize();
-                            }
-                            Engine.velocity.x += dashDir.x * 80; Engine.velocity.z += dashDir.z * 80;
-                            GameState.dashCooldown = 2.0;
-                        }
-                    }
-                    if(e.code==='KeyR') {
-                        if(GameState.isReloading || GameState.isDead) return;
-                        const wp = getCurWeapon();
-                        if(wp.archetype === 'melee' || wp.archetype === 'heal' || GameState.ammo === wp.mag) return;
-                        GameState.isReloading = true; playSound('reload');
-                        const ammoEl = document.getElementById('hud-ammo'); if(ammoEl) ammoEl.innerText = 'R';
-                        Engine.recoilTarget.y = -0.5; Engine.recoilTarget.x = Math.PI / 4;
-                        setTimeout(() => { GameState.ammo = wp.mag; GameState.isReloading = false; Engine.recoilTarget.set(0,0,0); updateHUD(); }, 1000);
-                    }
-                    if(e.code==='KeyE') {
-                        if(GameState.unlockedWeapons.length <= 1 || GameState.isDead) return;
-                        let currentInvIdx = GameState.unlockedWeapons.indexOf(getCurWeapon().id);
-                        currentInvIdx = (currentInvIdx + 1) % GameState.unlockedWeapons.length;
-                        GameState.equippedWeaponIndex = WeaponDB.findIndex(w => w.id === GameState.unlockedWeapons[currentInvIdx]);
-                        GameState.ammo = getCurWeapon().mag; GameState.isReloading = false;
-                        buildWeaponModel(getCurWeapon()); updateHUD();
-                    }
-                });
-                document.addEventListener('keyup', (e) => {
-                    if(e.code==='KeyW') Engine.input.forward=false; if(e.code==='KeyS') Engine.input.backward=false;
-                    if(e.code==='KeyA') Engine.input.left=false; if(e.code==='KeyD') Engine.input.right=false;
-                    if(e.code==='Space') Engine.input.jump=false;
-                });
-                document.addEventListener('mousedown', (e) => {
-                    if(GameState.isDead) return;
-                    if(!document.pointerLockElement) { document.body.requestPointerLock().catch(()=>{}); return; }
-                    if(e.button === 0) Engine.input.shoot = true;
-                });
-                document.addEventListener('mouseup', (e) => { if(e.button === 0) Engine.input.shoot = false; });
-                document.addEventListener('mousemove', (e) => {
-                    if(!document.pointerLockElement || GameState.isDead) return;
-                    Engine.lookDelta.x = e.movementX; Engine.lookDelta.y = e.movementY;
-                });
-            }
-        }
-
-        function gameLoop() {
-            requestAnimationFrame(gameLoop);
-            const time = performance.now(); const delta = Math.min((time - lastTime) / 1000, 0.1); lastTime = time;
-
-            if (!GameState.isDead) {
-                if(Engine.input.shoot && getCurWeapon().auto) tryAction();
-
-                if(GameState.dashCooldown > 0) {
-                    GameState.dashCooldown -= delta;
-                    const dFill = document.getElementById('dash-fill');
-                    if(dFill) dFill.style.width = `${((2.0 - GameState.dashCooldown)/2.0)*100}%`;
-                }
-
-                applyPhysics(delta);
-            }
-
-            for(let i = Engine.tracers.length-1; i>=0; i--) {
-                Engine.tracers[i].life -= delta * 5;
-                if(Engine.tracers[i].life <= 0) { Engine.scene.remove(Engine.tracers[i].mesh); Engine.tracers.splice(i, 1); }
-                else Engine.tracers[i].mesh.material.opacity = Engine.tracers[i].life;
-            }
-
-            if(Engine.renderer && Engine.scene && Engine.composer) Engine.composer.render();
-        }
     </script>
+
 </body>
 </html>
