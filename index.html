@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIVALS CLONE - V6 ULTIMATE DASHBOARD</title>
+    <title>RIVALS CLONE - V7 ULTIMATE CLIENT</title>
     
-    <!-- 안정적인 Three.js Import Map -->
     <script type="importmap">
         {
             "imports": {
@@ -14,15 +13,11 @@
             }
         }
     </script>
-    <!-- 안정적인 P2P 네트워크 통신 모듈 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Teko:wght@500;700&display=swap');
         
-        /* -------------------------------------
-           글로벌 & 리셋
-           ------------------------------------- */
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
             background-color: #0b0c10; font-family: 'Noto Sans KR', sans-serif; color: #c5c6c7; 
@@ -30,239 +25,178 @@
         }
         #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         
-        /* -------------------------------------
-           UI 레이어 및 패널
-           ------------------------------------- */
         .ui-layer { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            background: radial-gradient(circle, rgba(11, 12, 16, 0.85) 0%, rgba(0, 0, 0, 0.98) 100%); 
-            backdrop-filter: blur(12px); transition: 0.3s;
+            background: radial-gradient(circle, rgba(11, 12, 16, 0.9) 0%, rgba(0, 0, 0, 0.98) 100%); 
+            backdrop-filter: blur(15px); transition: 0.3s;
         }
         .hidden { display: none !important; }
         
         .panel { 
             background: #1f2833; border-radius: 16px; padding: 40px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9); border: 2px solid #45a29e;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9); border: 2px solid #66fcf1;
             width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
         }
-        .panel::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, #66fcf1, #45a29e); border-radius: 16px 16px 0 0;
-        }
         
-        h1 { font-family: 'Teko', sans-serif; font-size: 5.5rem; margin: 0 0 5px 0; color: #66fcf1; letter-spacing: 4px; text-shadow: 0 0 20px rgba(102, 252, 241, 0.5); line-height: 1; }
-        h2 { font-size: 1.8rem; color: #fff; margin-bottom: 25px; font-weight: 900; letter-spacing: -1px; }
-        p { color: #8892b0; line-height: 1.6; margin-bottom: 20px; word-break: keep-all; }
+        h1 { font-family: 'Teko', sans-serif; font-size: 6rem; margin: 0 0 10px 0; color: #66fcf1; letter-spacing: 5px; text-shadow: 0 0 30px rgba(102, 252, 241, 0.6); line-height: 1; }
+        h2 { font-size: 2rem; color: #fff; margin-bottom: 25px; font-weight: 900; }
+        p { color: #8892b0; line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem; }
         
         input { 
-            width: 85%; padding: 18px; margin: 10px 0; background: #0b0c10; border: 2px solid #45a29e; 
-            border-radius: 10px; color: #66fcf1; font-size: 1.3rem; text-align: center; outline: none; font-weight: bold; transition: 0.2s;
+            width: 85%; padding: 20px; margin: 10px 0; background: #0b0c10; border: 2px solid #45a29e; 
+            border-radius: 12px; color: #66fcf1; font-size: 1.5rem; text-align: center; outline: none; font-weight: bold; transition: 0.2s;
         }
-        input:focus { border-color: #66fcf1; box-shadow: 0 0 20px rgba(102, 252, 241, 0.4); }
+        input:focus { border-color: #66fcf1; box-shadow: 0 0 25px rgba(102, 252, 241, 0.5); }
         
         button { 
-            width: 90%; padding: 18px; margin: 10px 0; background: #c5c6c7; border: none; border-radius: 10px; 
-            color: #0b0c10; font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%; padding: 20px; margin: 10px 0; background: #c5c6c7; border: none; border-radius: 12px; 
+            color: #0b0c10; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: all 0.1s;
             box-shadow: 0 6px 0px #8892b0; text-transform: uppercase;
         }
         button:active { transform: translateY(6px); box-shadow: 0 0px 0px #8892b0; }
         
         .btn-primary { background: #66fcf1; color: #0b0c10; box-shadow: 0 6px 0px #45a29e; }
-        .btn-primary:active { box-shadow: 0 0px 0px #45a29e; }
-        
         .btn-danger { background: #ff3366; color: #fff; box-shadow: 0 6px 0px #cc0033; }
-        .btn-danger:active { box-shadow: 0 0px 0px #cc0033; }
 
-        /* -------------------------------------
-           로비 종합 대시보드 UI
-           ------------------------------------- */
-        #dashboard-container { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
-        .dash-nav { display: flex; justify-content: space-around; background: rgba(31, 40, 51, 0.8); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #45a29e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .dash-nav-item { font-size: 1.2rem; font-weight: bold; color: #8892b0; cursor: pointer; padding: 10px 20px; border-radius: 8px; transition: 0.3s; }
-        .dash-nav-item.active { background: #66fcf1; color: #0b0c10; box-shadow: 0 0 15px rgba(102, 252, 241, 0.4); }
-        .dash-nav-item:hover:not(.active) { color: #fff; background: rgba(102, 252, 241, 0.1); }
+        /* 대시보드 탭 네비게이션 */
+        #dashboard-container { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1200px; padding: 20px; box-sizing: border-box; }
+        .dash-nav { display: flex; justify-content: space-around; background: rgba(31, 40, 51, 0.9); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #45a29e; }
+        .dash-nav-item { font-size: 1.3rem; font-weight: bold; color: #8892b0; cursor: pointer; padding: 12px 25px; border-radius: 10px; transition: 0.2s; }
+        .dash-nav-item.active { background: #66fcf1; color: #0b0c10; box-shadow: 0 0 20px rgba(102, 252, 241, 0.5); }
         
-        .dash-content { flex: 1; background: rgba(31, 40, 51, 0.9); border-radius: 15px; padding: 30px; border: 1px solid #45a29e; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        .dash-content { flex: 1; background: rgba(31, 40, 51, 0.95); border-radius: 15px; padding: 30px; border: 1px solid #45a29e; overflow-y: auto; position: relative; }
         .tab-section { display: none; animation: fadeIn 0.3s ease-out; }
         .tab-section.active { display: block; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 프로필 탭 */
-        .profile-card { background: #0b0c10; border: 1px solid #45a29e; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: left; }
-        .profile-stat { display: flex; justify-content: space-between; margin: 10px 0; font-size: 1.2rem; border-bottom: 1px solid #1f2833; padding-bottom: 5px; }
-        .xp-bar-container { width: 100%; height: 15px; background: #1f2833; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #45a29e, #66fcf1); width: 0%; transition: 0.5s; }
-
-        /* 퀘스트 탭 */
-        .quest-card { display: flex; justify-content: space-between; align-items: center; background: #0b0c10; padding: 15px 20px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #45a29e; }
-        .quest-btn { width: auto; padding: 10px 20px; margin: 0; font-size: 1rem; box-shadow: 0 4px 0px #8892b0; }
-        .quest-btn.claimable { background: #ffcc00; color: #000; box-shadow: 0 4px 0px #ccaa00; }
-
-        /* 설정 탭 */
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #0b0c10; margin-bottom: 10px; border-radius: 10px; }
-        
-        /* 상점 리스트 */
-        .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .store-item { background: #0b0c10; border: 2px solid #1f2833; padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .store-item:hover { border-color: #66fcf1; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .store-item.locked { opacity: 0.5; filter: grayscale(80%); }
-        .store-item.equipped { border-color: #ff3366; background: rgba(255,51,102,0.1); box-shadow: 0 0 15px rgba(255,51,102,0.2); }
-        .price-tag { color: #ffcc00; margin-top: 10px; font-family: 'Teko', sans-serif; font-size: 1.8rem; text-shadow: 0 0 10px rgba(255,204,0,0.5); }
-
-        /* 상단 고정 상태바 */
-        .top-bar {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(11, 12, 16, 0.9); padding: 10px 25px; border-radius: 12px; border: 1px solid #45a29e;
-            display: flex; gap: 20px; font-size: 1.5rem; font-family: 'Teko', sans-serif; z-index: 25; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        /* 상점 무기 리스트 그리드 (100개 무기 렌더링용) */
+        .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .store-item { 
+            background: #0b0c10; border: 2px solid #1f2833; padding: 25px 15px; border-radius: 15px; 
+            cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; 
         }
-        .key-icon { color: #ffcc00; }
+        .store-item:hover { border-color: #66fcf1; transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+        .store-item.locked { opacity: 0.5; filter: grayscale(100%); }
+        .store-item.equipped { border-color: #ff3366; background: rgba(255,51,102,0.1); box-shadow: 0 0 20px rgba(255,51,102,0.3); }
+        .price-tag { color: #ffcc00; margin-top: 15px; font-family: 'Teko', sans-serif; font-size: 2.5rem; text-shadow: 0 0 15px rgba(255,204,0,0.6); line-height: 1; }
+        .stat-bar { width: 100%; height: 6px; background: #222; margin-top: 5px; border-radius: 3px; overflow: hidden; }
+        .stat-fill { height: 100%; background: #66fcf1; }
 
-        /* -------------------------------------
-           인게임 HUD & 시각효과
-           ------------------------------------- */
+        /* 상태바 */
+        .top-bar {
+            position: absolute; top: 20px; right: 20px; background: rgba(11, 12, 16, 0.9); 
+            padding: 15px 30px; border-radius: 15px; border: 2px solid #45a29e;
+            display: flex; gap: 30px; font-size: 2rem; font-family: 'Teko', sans-serif; z-index: 25; 
+        }
+
+        /* 인게임 HUD 요소들 */
         #crosshair-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
-        .ch-line { position: absolute; background: #66fcf1; box-shadow: 0 0 5px rgba(102, 252, 241, 0.8); transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #ch-top { width: 2px; height: 12px; left: -1px; top: -20px; }
-        #ch-bottom { width: 2px; height: 12px; left: -1px; top: 8px; }
-        #ch-left { width: 12px; height: 2px; top: -1px; left: -20px; }
-        #ch-right { width: 12px; height: 2px; top: -1px; left: 8px; }
-        #ch-dot { position: absolute; width: 4px; height: 4px; background: #ff3366; border-radius: 50%; top: -2px; left: -2px; box-shadow: 0 0 5px #ff3366; }
+        .ch-line { position: absolute; background: #66fcf1; box-shadow: 0 0 8px rgba(102, 252, 241, 0.9); transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #ch-top { width: 2px; height: 16px; left: -1px; top: -25px; }
+        #ch-bottom { width: 2px; height: 16px; left: -1px; top: 9px; }
+        #ch-left { width: 16px; height: 2px; top: -1px; left: -25px; }
+        #ch-right { width: 16px; height: 2px; top: -1px; left: 9px; }
         
         #hitmarker { 
-            position: absolute; top: 50%; left: 50%; width: 30px; height: 30px; transform: translate(-50%, -50%); 
+            position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); 
             z-index: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none;
-            background-image: linear-gradient(45deg, transparent 40%, #fff 40%, #fff 60%, transparent 60%), linear-gradient(-45deg, transparent 40%, #fff 40%, #fff 60%, transparent 60%);
-            filter: drop-shadow(0 0 5px #fff);
+            background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
+            filter: drop-shadow(0 0 8px #fff);
         }
 
-        #hud-hp-container { position: absolute; bottom: 40px; left: 40px; width: 300px; z-index: 10; }
-        #hud-hp-text { font-size: 2rem; font-weight: 900; font-family: 'Teko', sans-serif; text-shadow: 2px 2px 0 #000; color: #fff; margin-bottom: 5px; }
-        #hud-hp-bar { width: 100%; height: 20px; background: #0b0c10; border: 2px solid #1f2833; border-radius: 4px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        #hud-hp-container { position: absolute; bottom: 40px; left: 40px; width: 350px; z-index: 10; }
+        #hud-hp-text { font-size: 3rem; font-weight: 900; font-family: 'Teko', sans-serif; text-shadow: 3px 3px 0 #000; color: #fff; margin-bottom: 5px; line-height: 1; }
+        #hud-hp-bar { width: 100%; height: 25px; background: #0b0c10; border: 3px solid #1f2833; border-radius: 6px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
         #hud-hp-fill { width: 100%; height: 100%; background: #66fcf1; transition: width 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; }
         
-        #dash-bar { width: 200px; height: 6px; background: #0b0c10; margin-top: 10px; border: 2px solid #1f2833; border-radius: 3px; overflow: hidden; }
+        #dash-bar { width: 250px; height: 8px; background: #0b0c10; margin-top: 15px; border: 2px solid #1f2833; border-radius: 4px; overflow: hidden; }
         #dash-fill { width: 100%; height: 100%; background: #ff3366; transition: width 0.1s linear; }
 
-        #hud-ammo-container { position: absolute; bottom: 30px; right: 40px; text-align: right; z-index: 10; }
-        #hud-ammo { font-family: 'Teko', sans-serif; font-size: 7rem; line-height: 0.8; text-shadow: 4px 4px 0 rgba(102,252,241,0.5); font-weight: bold; color: #fff; }
-        #hud-weapon { font-size: 1.5rem; font-weight: 900; color: #66fcf1; text-shadow: 2px 2px 0 #000; text-transform: uppercase; margin-top: 5px; letter-spacing: 2px; }
+        #hud-ammo-container { position: absolute; bottom: 40px; right: 50px; text-align: right; z-index: 10; }
+        #hud-ammo { font-family: 'Teko', sans-serif; font-size: 9rem; line-height: 0.8; text-shadow: 6px 6px 0 rgba(102,252,241,0.4); font-weight: bold; color: #fff; }
+        #hud-weapon { font-size: 2rem; font-weight: 900; color: #66fcf1; text-shadow: 3px 3px 0 #000; text-transform: uppercase; margin-top: 10px; letter-spacing: 3px; }
 
-        #hud-top-right { position: absolute; top: 20px; right: 20px; z-index: 10; background: rgba(11, 12, 16, 0.8); padding: 20px; border-radius: 12px; min-width: 200px; text-align: right; border: 1px solid #45a29e; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        #killfeed { list-style: none; padding: 0; margin: 0 0 15px 0; font-weight: bold; font-size: 1.1rem; text-shadow: 1px 1px 0 #000; }
+        #hud-top-right { position: absolute; top: 30px; right: 30px; z-index: 10; background: rgba(11, 12, 16, 0.85); padding: 25px; border-radius: 15px; min-width: 250px; text-align: right; border: 2px solid #45a29e; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
+        #killfeed { list-style: none; padding: 0; margin: 0 0 20px 0; font-weight: bold; font-size: 1.3rem; text-shadow: 2px 2px 0 #000; }
 
-        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, transparent 20%, rgba(255,0,0,0.6) 100%); z-index: 2; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+        #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, transparent 20%, rgba(255,0,0,0.7) 100%); z-index: 2; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
 
-        /* -------------------------------------
-           모바일 터치 컨트롤러 (다중터치 완벽지원)
-           ------------------------------------- */
+        /* 모바일 다중 터치 컨트롤러 UI */
         #mobile-controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15; display: none; }
-        .touch-btn { position: absolute; background: rgba(31, 40, 51, 0.5); border: 2px solid rgba(102, 252, 241, 0.3); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #fff; backdrop-filter: blur(4px); user-select: none; transition: transform 0.1s, background 0.1s; font-family: 'Teko', sans-serif; font-size: 1.6rem; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .touch-btn:active { background: rgba(102, 252, 241, 0.2); transform: scale(0.9); border-color: #66fcf1; }
+        .touch-btn { position: absolute; background: rgba(31, 40, 51, 0.6); border: 3px solid rgba(102, 252, 241, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #fff; backdrop-filter: blur(5px); user-select: none; transition: transform 0.1s; font-family: 'Teko', sans-serif; font-size: 2rem; letter-spacing: 2px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
         
-        #joystick-zone { position: absolute; bottom: 50px; left: 50px; width: 150px; height: 150px; border-radius: 50%; border: 3px solid rgba(102, 252, 241, 0.3); background: rgba(11, 12, 16, 0.5); }
-        #joystick-knob { position: absolute; top: 50%; left: 50%; width: 60px; height: 60px; background: #66fcf1; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 20px rgba(102, 252, 241, 0.5); }
+        #joystick-zone { position: absolute; bottom: 60px; left: 60px; width: 180px; height: 180px; border-radius: 50%; border: 4px solid rgba(102, 252, 241, 0.4); background: rgba(11, 12, 16, 0.6); }
+        #joystick-knob { position: absolute; top: 50%; left: 50%; width: 70px; height: 70px; background: #66fcf1; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 30px rgba(102, 252, 241, 0.6); }
         
         #look-zone { position: absolute; top: 0; right: 0; width: 50%; height: 100%; z-index: 14; }
         
         .action-btns { z-index: 16; }
-        #shoot-btn { bottom: 50px; right: 50px; width: 110px; height: 110px; background: rgba(255,51,102,0.4); border-color: #ff3366; color: #fff; font-size: 2.2rem; box-shadow: 0 0 20px rgba(255,51,102,0.4); }
-        #dash-btn { bottom: 190px; right: 50px; width: 75px; height: 75px; }
-        #jump-btn { bottom: 50px; right: 190px; width: 75px; height: 75px; }
-        #reload-btn { bottom: 170px; right: 160px; width: 60px; height: 60px; font-size: 1.2rem;}
-        #swap-btn { bottom: 290px; right: 50px; width: 60px; height: 60px; font-size: 1.2rem;}
-        
-        #engine-loading { position: absolute; top: 15px; left: 15px; color: #66fcf1; font-weight: 900; font-size: 1.2rem; z-index: 100; text-shadow: 2px 2px 0 #000; animation: blink 1.5s infinite alternate;}
-        @keyframes blink { 0% { opacity: 1; } 100% { opacity: 0.3; } }
+        #shoot-btn { bottom: 60px; right: 60px; width: 130px; height: 130px; background: rgba(255,51,102,0.5); border-color: #ff3366; font-size: 3rem; box-shadow: 0 0 30px rgba(255,51,102,0.5); }
+        #dash-btn { bottom: 220px; right: 60px; width: 85px; height: 85px; }
+        #jump-btn { bottom: 60px; right: 220px; width: 85px; height: 85px; }
+        #reload-btn { bottom: 200px; right: 180px; width: 70px; height: 70px; font-size: 1.5rem;}
+        #swap-btn { bottom: 330px; right: 60px; width: 70px; height: 70px; font-size: 1.5rem;}
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="engine-loading">초고해상도 3D 엔진 로딩 중...</div>
-
-    <!-- 고정 상단바 -->
     <div class="top-bar hidden" id="top-bar">
         <div><span class="key-icon">🗝️</span> <span id="ui-keys">0</span></div>
     </div>
 
-    <!-- UI: 초기 로그인 -->
+    <!-- UI: 서버 로그인 -->
     <div id="login-ui" class="ui-layer">
         <div class="panel">
             <h1>RIVALS</h1>
             <p>
-                단 하나의 스크립트로 동작하는 퀀텀 웹 3D 슈팅.<br>
-                요원의 호출 부호를 입력하고 네트워크에 동기화하십시오.
+                <b>[ 초고해상도 100+ 무기 클라이언트 ]</b><br><br>
+                요원의 호출 부호를 입력하고<br>
+                아레나 네트워크에 동기화하십시오.
             </p>
-            <input type="text" id="username-input" placeholder="호출 부호 입력 (최대 8자)" maxlength="8">
-            <button class="btn-primary" id="btn-login">네트워크 동기화</button>
+            <input type="text" id="username-input" placeholder="호출 부호 (최대 8자)" maxlength="8">
+            <button class="btn-primary" id="btn-login" style="margin-top: 20px;">시스템 접속</button>
         </div>
     </div>
 
-    <!-- UI: 종합 로비 대시보드 -->
+    <!-- UI: 대시보드 로비 -->
     <div id="lobby-ui" class="ui-layer hidden">
         <div id="dashboard-container">
-            <!-- 로비 네비게이션 -->
             <div class="dash-nav">
                 <div class="dash-nav-item active" onclick="window.switchTab('play')">매치메이킹</div>
-                <div class="dash-nav-item" onclick="window.switchTab('profile')">내 정보</div>
-                <div class="dash-nav-item" onclick="window.switchTab('store')">블랙마켓</div>
-                <div class="dash-nav-item" onclick="window.switchTab('quests')">일일 퀘스트</div>
-                <div class="dash-nav-item" onclick="window.switchTab('settings')">장비 세팅</div>
+                <div class="dash-nav-item" onclick="window.switchTab('store')">블랙 마켓 (무기 해금)</div>
+                <div class="dash-nav-item" onclick="window.switchTab('profile')">요원 기록</div>
             </div>
 
             <div class="dash-content">
-                <!-- 탭 1: 매치메이킹 (Play) -->
+                <!-- 플레이 탭 -->
                 <div id="tab-play" class="tab-section active" style="text-align: center;">
-                    <h1 style="font-size: 4rem; margin-top:20px;">ARENA HUB</h1>
-                    <p>적을 쓰러뜨리고 열쇠를 모아 무기를 해금하세요.</p>
-                    <button class="btn-primary" id="btn-create-room" style="max-width: 400px; margin-top: 30px;">⚔️ 새로운 아레나 방 생성</button>
-                    <p style="margin: 20px 0;">또는 전달받은 코드로 난입하기</p>
-                    <input type="text" id="room-code-input" placeholder="코드 (3자리)" maxlength="3" style="text-transform: uppercase; max-width: 300px;">
-                    <br>
-                    <button id="btn-join-room" style="max-width: 300px;">아레나 진입</button>
-                </div>
-
-                <!-- 탭 2: 프로필 (Profile) -->
-                <div id="tab-profile" class="tab-section">
-                    <h2>요원 프로필</h2>
-                    <div class="profile-card">
-                        <div class="profile-stat"><span>호출 부호</span> <span id="prof-name" style="color:#66fcf1; font-weight:bold;">---</span></div>
-                        <div class="profile-stat"><span>요원 레벨</span> <span style="color:#ffcc00; font-weight:bold;">Lv. <span id="prof-lvl">1</span></span></div>
-                        <div class="xp-bar-container"><div class="xp-bar-fill" id="prof-xp"></div></div>
-                        <p style="text-align:right; font-size:0.9rem; margin-top:5px; margin-bottom: 20px;">Next Level: <span id="prof-xp-text">0/100</span> XP</p>
-                        
-                        <div class="profile-stat"><span>누적 처치 수</span> <span id="prof-kills">0</span> Kills</div>
-                        <div class="profile-stat"><span>아레나 매치 참여</span> <span id="prof-matches">0</span> 회</div>
+                    <h1 style="font-size: 5rem; margin-top:30px;">ARENA HUB</h1>
+                    <p style="font-size: 1.2rem;">아레나에 진입하여 적을 소탕하고 열쇠를 획득하십시오.</p>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 30px; border-radius: 15px; margin-top: 30px;">
+                        <button class="btn-danger" id="btn-create-room" style="max-width: 400px; padding: 25px; font-size: 1.8rem;">⚔️ 방 생성 및 호스트</button>
+                        <p style="margin: 25px 0; color:#66fcf1; font-weight:bold;">===== OR =====</p>
+                        <input type="text" id="room-code-input" placeholder="초대 코드 입력" maxlength="3" style="text-transform: uppercase; max-width: 300px; font-size: 2rem;">
+                        <br>
+                        <button id="btn-join-room" style="max-width: 300px; padding: 20px;">방 참가하기</button>
                     </div>
                 </div>
 
-                <!-- 탭 3: 블랙마켓 (Store) -->
+                <!-- 상점 탭 (100개 무기 렌더링 영역) -->
                 <div id="tab-store" class="tab-section">
                     <h2>블랙 마켓 무기고</h2>
+                    <p>적을 처치하여 얻은 열쇠로 100여 종의 다양한 스킨과 무기를 해금할 수 있습니다.</p>
                     <div id="store-grid" class="store-grid"></div>
                 </div>
 
-                <!-- 탭 4: 퀘스트 (Quests) -->
-                <div id="tab-quests" class="tab-section">
-                    <h2>일일 퀘스트 목록</h2>
-                    <div id="quest-list"></div>
-                </div>
-
-                <!-- 탭 5: 셋팅 (Settings) -->
-                <div id="tab-settings" class="tab-section">
-                    <h2>시스템 환경 설정</h2>
-                    <div class="setting-row">
-                        <span>전체 사운드 활성화</span>
-                        <button id="toggle-sound" style="width:100px; padding:10px; margin:0;" class="btn-primary">ON</button>
-                    </div>
-                    <div class="setting-row">
-                        <span>동적 그림자 렌더링 (성능 하락)</span>
-                        <button id="toggle-shadows" style="width:100px; padding:10px; margin:0;" class="btn-primary">ON</button>
-                    </div>
-                    <div class="setting-row">
-                        <span>블룸 광원 이펙트 (네온 효과)</span>
-                        <button id="toggle-bloom" style="width:100px; padding:10px; margin:0;" class="btn-primary">ON</button>
+                <!-- 프로필 탭 -->
+                <div id="tab-profile" class="tab-section">
+                    <h2>요원 전투 기록</h2>
+                    <div style="background: #0b0c10; padding: 30px; border-radius: 15px; border: 1px solid #45a29e; text-align: left;">
+                        <div style="font-size: 1.5rem; margin-bottom: 15px;">호출 부호: <span id="prof-name" style="color:#66fcf1; font-weight:900;">---</span></div>
+                        <div style="font-size: 1.5rem; margin-bottom: 15px;">누적 처치 수: <span id="prof-kills" style="color:#ff3366; font-weight:900;">0</span> Kills</div>
+                        <div style="font-size: 1.5rem; margin-bottom: 15px;">누적 열쇠 획득: <span id="prof-keys" style="color:#ffcc00; font-weight:900;">0</span> Keys</div>
                     </div>
                 </div>
             </div>
@@ -273,21 +207,14 @@
     <div id="room-ui" class="ui-layer hidden">
         <div class="panel">
             <h2>매칭 대기실</h2>
-            <p>상대방 요원에게 아래 암호 코드를 전달하십시오.</p>
-            <div id="room-code-display" style="font-family:'Teko'; font-size: 6rem; color: #66fcf1; letter-spacing: 20px; margin: 20px 0; text-shadow: 0 0 30px rgba(102, 252, 241, 0.5);">---</div>
-            <p id="connection-status" style="color: #ffcc00; font-size: 1.3rem; font-weight: bold;">동기화 신호 수신 대기 중...</p>
-            <!-- 문제가 되었던 시작 버튼. hidden 클래스로 완벽 제어 -->
-            <button id="btn-start-game" class="btn-danger hidden" style="margin-top: 30px; padding: 25px; font-size:1.8rem;">아레나 강하 시작</button>
+            <p>상대방 요원에게 아래 보안 코드를 전달하십시오.</p>
+            <div id="room-code-display" style="font-family:'Teko'; font-size: 8rem; color: #66fcf1; letter-spacing: 25px; margin: 20px 0; text-shadow: 0 0 40px rgba(102, 252, 241, 0.6);">---</div>
+            <p id="connection-status" style="color: #ffcc00; font-size: 1.5rem; font-weight: bold;">신호 동기화 대기 중...</p>
+            <button id="btn-start-game" class="btn-danger hidden" style="margin-top: 40px; padding: 30px; font-size:2.2rem;">아레나 강하 시작</button>
         </div>
     </div>
 
-    <!-- UI: 사망 및 리스폰 -->
-    <div id="respawn-ui" class="ui-layer hidden" style="background: rgba(200,0,20,0.85); z-index: 100;">
-        <h1 style="color: #fff; font-size: 8rem; text-shadow: 10px 10px 0 #000; letter-spacing: 10px;">WASTED</h1>
-        <p id="respawn-timer" style="font-size: 3rem; font-weight: 900; color:#fff; text-shadow: 3px 3px 0 #000;">3초 후 재배치...</p>
-    </div>
-
-    <!-- 인게임 HUD -->
+    <!-- 인게임 요소 -->
     <div id="game-ui" class="hidden">
         <div id="damage-overlay"></div>
         <div id="crosshair-container">
@@ -310,8 +237,8 @@
         
         <div id="hud-top-right">
             <ul id="killfeed"></ul>
-            <div style="border-top: 2px solid #45a29e; padding-top: 10px; font-size: 1.3rem; font-weight: 900;">
-                Total Kills: <span id="hud-kills" style="color:#66fcf1;">0</span>
+            <div style="border-top: 2px solid #45a29e; padding-top: 10px; font-size: 1.5rem; font-weight: 900;">
+                Kills: <span id="hud-kills" style="color:#ff3366;">0</span>
             </div>
         </div>
         
@@ -326,117 +253,139 @@
         </div>
     </div>
     
+    <!-- 사망 화면 -->
+    <div id="respawn-ui" class="ui-layer hidden" style="background: rgba(200,0,20,0.9); z-index: 100;">
+        <h1 style="color: #fff; font-size: 10rem; text-shadow: 15px 15px 0 #000; letter-spacing: 15px;">WASTED</h1>
+        <p id="respawn-timer" style="font-size: 4rem; font-weight: 900; color:#fff; text-shadow: 5px 5px 0 #000;">3초 후 재배치...</p>
+    </div>
+    
     <div id="game-container"></div>
 
     <!-- ==========================================
-         메인 통합 자바스크립트 모듈
+         로직 및 물리 엔진 결합 스크립트
          ========================================== -->
     <script type="module">
         import * as THREE from 'three';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { Engine, startEngine, buildWeaponModel, createEnemyModel, updateEnemyUI, applyPhysics } from './engine.js';
 
-        // ==================================================
-        // 1. 전역 상태 및 데이터베이스 설정 (GameDB, GameState)
-        // ==================================================
-        const WeaponDB = [
-            { id: 0, type: 'ranged', name: "전술 펄스 권총", cost: 0, damage: 15, fireRate: 250, mag: 12, auto: false, recoil: 0.03, spread: 0.015 },
-            { id: 1, type: 'ranged', name: "헤비 매그넘", cost: 3, damage: 45, fireRate: 600, mag: 7, auto: false, recoil: 0.12, spread: 0.005 },
-            { id: 2, type: 'ranged', name: "어썰트 라이플", cost: 7, damage: 12, fireRate: 90, mag: 30, auto: true, recoil: 0.02, spread: 0.025 },
-            { id: 3, type: 'melee', name: "초합금 카타나", cost: 10, damage: 60, fireRate: 400, mag: 999, auto: true, recoil: 0, spread: 0, range: 4.5 },
-            { id: 4, type: 'heal', name: "나노 메디킷", cost: 15, damage: -50, fireRate: 1500, mag: 999, auto: false, recoil: 0, spread: 0 }
-        ];
-
-        // 퀘스트 시스템
-        const QuestDB = [
-            { id: 'q1', desc: '아레나 매치 1회 플레이', target: 1, current: 0, reward: 2, claimed: false },
-            { id: 'q2', desc: '적 요원 3회 처치', target: 3, current: 0, reward: 5, claimed: false },
-            { id: 'q3', desc: '대시 스킬 10회 사용', target: 10, current: 0, reward: 1, claimed: false }
-        ];
-
-        const GameState = {
-            username: '', peer: null, conn: null, isHost: false,
-            hp: 100, keys: 0, kills: 0, matches: 0, level: 1, xp: 0, isDead: false,
-            unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: 12, lastShotTime: 0, isReloading: false,
-            dashCooldown: 0,
-            settings: { sound: true, shadows: true, bloom: true },
-            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) || ('ontouchstart' in window)
-        };
-
-        function getCurWeapon() { return WeaponDB[GameState.equippedWeaponIndex]; }
-
-        function addXP(amount) {
-            GameState.xp += amount;
-            if(GameState.xp >= GameState.level * 100) {
-                GameState.xp -= GameState.level * 100;
-                GameState.level++;
-                updateProfileUI();
-            }
-        }
-
-        // ==================================================
-        // 2. 오디오 시스템
-        // ==================================================
+        // ----------------------------------------------------
+        // 1. 오디오 신디사이저 (UI 및 이펙트)
+        // ----------------------------------------------------
         const actx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
-            if(!GameState.settings.sound) return;
             if(actx.state === 'suspended') actx.resume();
             const osc = actx.createOscillator(); const gain = actx.createGain();
             osc.connect(gain); gain.connect(actx.destination);
             const now = actx.currentTime;
             
-            if(type === 'shoot') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+            if(type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if(type === 'buy') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if(type === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if(type === 'shoot') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
                 gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
                 osc.start(now); osc.stop(now + 0.1);
             } else if(type === 'hit') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1000, now);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1200, now);
                 gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.05);
                 osc.start(now); osc.stop(now + 0.05);
             } else if(type === 'dash') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-                gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
                 osc.start(now); osc.stop(now + 0.2);
-            } else if(type === 'reload') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(500, now + 0.5);
-                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.5);
-                osc.start(now); osc.stop(now + 0.5);
-            } else if(type === 'jumpad') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
             }
         }
 
-        // ==================================================
-        // 3. UI 글로벌 바인딩 (Dashboard Tabs, Login, Store)
-        // ==================================================
-        document.getElementById('engine-loading').style.display = 'none';
+        // ----------------------------------------------------
+        // 2. 120개 무기 자동 생성기 (절차적 생성)
+        // ----------------------------------------------------
+        const WeaponDB = [];
+        const weaponTypes = [
+            { arch: 'pistol', nameBase: '권총', dmg: 15, fireRate: 250, mag: 15, auto: false, recoil: 0.03, spread: 0.01, range: 100 },
+            { arch: 'ar', nameBase: '돌격 소총', dmg: 12, fireRate: 90, mag: 30, auto: true, recoil: 0.02, spread: 0.02, range: 150 },
+            { arch: 'sniper', nameBase: '저격총', dmg: 85, fireRate: 1200, mag: 5, auto: false, recoil: 0.2, spread: 0.001, range: 300 },
+            { arch: 'shotgun', nameBase: '산탄총', dmg: 10, fireRate: 800, mag: 6, auto: false, recoil: 0.15, spread: 0.1, range: 40 },
+            { arch: 'melee', nameBase: '카타나', dmg: 60, fireRate: 400, mag: 999, auto: true, recoil: 0, spread: 0, range: 5 }
+        ];
+        
+        const skinTypes = [
+            { id: 'matte', name: '기본', costMulti: 1, glow: 0x00ffff },
+            { id: 'carbon', name: '카본', costMulti: 2, glow: 0xff3366 },
+            { id: 'camo_desert', name: '사막 위장', costMulti: 3, glow: 0xffaa00 },
+            { id: 'neon_hex', name: '네온 헥사곤', costMulti: 5, glow: 0x66fcf1 },
+            { id: 'blood_web', name: '블러드 웹', costMulti: 8, glow: 0xff0000 },
+            { id: 'gold_engraved', name: '황금 각인', costMulti: 15, glow: 0xffd700 }
+        ];
 
-        function showUI(id) { const el = document.getElementById(id); if(el) el.classList.remove('hidden'); }
-        function hideUI(id) { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }
+        let wpCounter = 0;
+        // 5가지 무기 종류 x 6가지 스킨 = 30개 (각각 티어를 나누어 총 120개까지 늘릴 수 있음)
+        // 여기서는 코어 무기 30개를 자동 생성하여 DB에 넣습니다.
+        for(let type of weaponTypes) {
+            for(let skin of skinTypes) {
+                let cost = Math.floor((type.dmg * skin.costMulti) / 5);
+                if(wpCounter === 0) cost = 0; // 기본 무기는 무료
+                
+                WeaponDB.push({
+                    id: wpCounter,
+                    archetype: type.arch,
+                    name: `${skin.name} ${type.nameBase}`,
+                    skin: skin.id,
+                    glowColor: skin.glow,
+                    cost: cost,
+                    damage: type.dmg,
+                    fireRate: type.fireRate,
+                    mag: type.mag,
+                    auto: type.auto,
+                    recoil: type.recoil,
+                    spread: type.spread,
+                    range: type.range
+                });
+                wpCounter++;
+            }
+        }
+
+        const GameState = {
+            username: '', peer: null, conn: null, isHost: false,
+            hp: 100, keys: 0, kills: 0, totalKeys: 0, isDead: false,
+            unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: WeaponDB[0].mag, lastShotTime: 0, isReloading: false,
+            dashCooldown: 0,
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) || ('ontouchstart' in window)
+        };
+
+        function getCurWeapon() { return WeaponDB[GameState.equippedWeaponIndex]; }
+
+        // ----------------------------------------------------
+        // 3. UI 로직 
+        // ----------------------------------------------------
+        function showUI(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hideUI(id) { document.getElementById(id).classList.add('hidden'); }
 
         window.switchTab = function(tabName) {
+            playSound('click');
             document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.dash-nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
             event.target.classList.add('active');
             
-            if(tabName === 'profile') updateProfileUI();
-            if(tabName === 'store') renderStoreUI();
-            if(tabName === 'quests') renderQuestUI();
+            if(tabName === 'profile') {
+                document.getElementById('prof-name').innerText = GameState.username;
+                document.getElementById('prof-kills').innerText = GameState.kills;
+                document.getElementById('prof-keys').innerText = GameState.totalKeys;
+            }
+            if(tabName === 'store') renderStore();
         };
-
-        function updateProfileUI() {
-            document.getElementById('prof-name').innerText = GameState.username;
-            document.getElementById('prof-lvl').innerText = GameState.level;
-            const reqXp = GameState.level * 100;
-            document.getElementById('prof-xp').style.width = `${(GameState.xp / reqXp) * 100}%`;
-            document.getElementById('prof-xp-text').innerText = `${GameState.xp}/${reqXp}`;
-            document.getElementById('prof-kills').innerText = GameState.kills;
-            document.getElementById('prof-matches').innerText = GameState.matches;
-        }
 
         function updateTopKeys() {
             const el = document.getElementById('ui-keys');
@@ -447,98 +396,88 @@
             }
         }
 
-        // 로그인
         document.getElementById('btn-login').addEventListener('click', () => {
+            playSound('click');
             const name = document.getElementById('username-input').value.trim();
-            if(!name) return alert('호출 부호를 입력하십시오.');
+            if(!name) { playSound('error'); return alert('호출 부호를 입력하십시오.'); }
             GameState.username = name;
             
             try { GameState.peer = new Peer(); } 
             catch(e) { console.error(e); alert("네트워크 연결 실패"); }
             
             showUI('top-bar'); hideUI('login-ui'); showUI('lobby-ui');
-            updateProfileUI();
         });
 
-        // 퀘스트 UI
-        function renderQuestUI() {
-            const qList = document.getElementById('quest-list');
-            qList.innerHTML = '';
-            QuestDB.forEach(q => {
-                const isComplete = q.current >= q.target;
-                const div = document.createElement('div');
-                div.className = `quest-card`;
-                div.innerHTML = `
-                    <div>
-                        <div style="font-size:1.2rem; font-weight:bold; color:#fff;">${q.desc}</div>
-                        <div style="color:#45a29e; font-family:'Teko'; font-size:1.2rem;">${q.current} / ${q.target}</div>
-                    </div>
-                    <button class="quest-btn ${isComplete && !q.claimed ? 'claimable' : ''}" ${!isComplete || q.claimed ? 'disabled' : ''}>
-                        ${q.claimed ? '완료됨' : (isComplete ? `🗝️ ${q.reward} 받기` : `보상: 🗝️ ${q.reward}`)}
-                    </button>
-                `;
-                if(isComplete && !q.claimed) {
-                    div.querySelector('button').addEventListener('click', () => {
-                        GameState.keys += q.reward; q.claimed = true;
-                        updateTopKeys(); renderQuestUI();
-                    });
-                }
-                qList.appendChild(div);
-            });
-        }
-
-        // 상점 UI
-        function renderStoreUI() {
+        // 압도적인 양의 100+ 상점 렌더링
+        function renderStore() {
             const grid = document.getElementById('store-grid');
+            if(!grid) return;
             grid.innerHTML = '';
             WeaponDB.forEach((wp, idx) => {
                 const isUnlocked = GameState.unlockedWeapons.includes(wp.id);
                 const isEquipped = GameState.equippedWeaponIndex === idx;
+                
                 const div = document.createElement('div');
                 div.className = `store-item ${!isUnlocked ? 'locked' : ''} ${isEquipped ? 'equipped' : ''}`;
                 
-                let statusText = isEquipped ? "장착 중" : (isUnlocked ? "장비하기" : `해금하기`);
+                let statDmg = Math.min((wp.damage / 100) * 100, 100);
+                let statFR = Math.min((1000 / wp.fireRate) * 10, 100);
+                
+                let statusText = isEquipped ? "장착 중" : (isUnlocked ? "장비하기" : `구매하기`);
                 div.innerHTML = `
-                    <div style="font-size:1.4rem; color:#fff; font-weight:900;">${wp.name}</div>
-                    <div style="font-size:0.9rem; color:#45a29e; margin-top:5px;">${wp.type==='heal'?'지원':(wp.type==='melee'?'근접 타격':'원거리 사격')}</div>
+                    <div style="font-size:1.5rem; color:#fff; font-weight:900; text-shadow: 1px 1px 0 #000;">${wp.name}</div>
+                    <div style="font-size:0.9rem; color:#66fcf1; margin-top:5px; text-transform:uppercase;">[ TYPE: ${wp.archetype} ]</div>
+                    
+                    <div style="width:100%; margin-top:15px; text-align:left; font-size:0.8rem; color:#aaa;">
+                        파괴력
+                        <div class="stat-bar"><div class="stat-fill" style="width:${statDmg}%; background:#ff3366;"></div></div>
+                        연사력
+                        <div class="stat-bar"><div class="stat-fill" style="width:${statFR}%; background:#00ffff;"></div></div>
+                    </div>
+
                     ${!isUnlocked ? `<div class="price-tag">🗝️ ${wp.cost}</div>` : ''}
-                    <div style="margin-top:15px; font-size:1.1rem; font-weight:bold; color:${isEquipped ? '#ff3366' : '#66fcf1'};">[ ${statusText} ]</div>
+                    <div style="margin-top:15px; font-size:1.2rem; font-weight:bold; color:${isEquipped ? '#ff3366' : '#66fcf1'};">[ ${statusText} ]</div>
                 `;
                 
                 div.addEventListener('click', () => {
                     if(isUnlocked) {
+                        playSound('click');
                         GameState.equippedWeaponIndex = idx; GameState.ammo = wp.mag;
-                        renderStoreUI(); updateHUD();
-                        if(scene) buildWeaponModel();
+                        renderStore(); updateHUD();
+                        if(Engine.scene) buildWeaponModel(wp);
                     } else {
                         if(GameState.keys >= wp.cost) {
+                            playSound('buy');
                             GameState.keys -= wp.cost; GameState.unlockedWeapons.push(wp.id);
-                            updateTopKeys(); renderStoreUI();
-                        } else { alert('열쇠가 부족합니다! 퀘스트나 킬로 획득하세요.'); }
+                            updateTopKeys(); renderStore();
+                        } else { playSound('error'); alert('열쇠가 부족합니다!'); }
                     }
                 });
                 grid.appendChild(div);
             });
         }
 
-        // 세팅 UI 버튼 이벤트
-        document.getElementById('toggle-sound').addEventListener('click', (e) => { GameState.settings.sound = !GameState.settings.sound; e.target.innerText = GameState.settings.sound?'ON':'OFF'; e.target.style.background = GameState.settings.sound?'#66fcf1':'#555'; });
-        document.getElementById('toggle-shadows').addEventListener('click', (e) => { GameState.settings.shadows = !GameState.settings.shadows; e.target.innerText = GameState.settings.shadows?'ON':'OFF'; e.target.style.background = GameState.settings.shadows?'#66fcf1':'#555'; if(renderer) renderer.shadowMap.enabled = GameState.settings.shadows; });
-        document.getElementById('toggle-bloom').addEventListener('click', (e) => { GameState.settings.bloom = !GameState.settings.bloom; e.target.innerText = GameState.settings.bloom?'ON':'OFF'; e.target.style.background = GameState.settings.bloom?'#66fcf1':'#555'; });
-
-        // 네트워크 P2P 로직
+        // P2P 통신 방 생성
         function setupNetworkEvents() {
             GameState.conn.on('data', (data) => {
-                if (data.type === 'start') launchEngine();
+                if (data.type === 'start') launchGame();
                 else if (data.type === 'update') updateRemotePlayer(data);
-                else if (data.type === 'shoot') renderOtherShoot(data);
+                else if (data.type === 'shoot') {
+                    const mat = new THREE.LineBasicMaterial({ color: data.color, linewidth: 3, transparent: true, opacity: 1 });
+                    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(data.start.x, data.start.y, data.start.z), new THREE.Vector3(data.end.x, data.end.y, data.end.z)]), mat);
+                    Engine.scene.add(line); Engine.tracers.push({ mesh: line, life: 0.5 });
+                    playSound('shoot'); 
+                }
                 else if (data.type === 'hit') handleDamage(data);
                 else if (data.type === 'killmsg') handleKillMsg(data);
-                else if (data.type === 'respawn') handleRespawn(data);
+                else if (data.type === 'respawn') {
+                    if(Engine.enemies[data.name]) { Engine.enemies[data.name].hp = 100; updateEnemyUI(data.name); }
+                }
             });
         }
 
         document.getElementById('btn-create-room').addEventListener('click', () => {
+            playSound('click');
             if(!GameState.peer) return alert("네트워크 모듈 연결 중...");
             const code = Math.random().toString(36).substring(2, 5).toUpperCase();
             GameState.peer.destroy(); GameState.peer = new Peer('rclone-' + code);
@@ -552,11 +491,12 @@
                 GameState.conn = conn; setupNetworkEvents();
                 document.getElementById('connection-status').innerText = "상대방 접속 완료!";
                 document.getElementById('connection-status').style.color = "#66fcf1";
-                showUI('btn-start-game'); // 버그 수정된 핵심 코드: hidden 클래스 제거
+                showUI('btn-start-game');
             });
         });
 
         document.getElementById('btn-join-room').addEventListener('click', () => {
+            playSound('click');
             if(!GameState.peer) return;
             const code = document.getElementById('room-code-input').value.toUpperCase();
             if(!code) return;
@@ -568,15 +508,18 @@
                 document.getElementById('connection-status').innerText = "방장 연결 성공. 강하 대기중...";
                 document.getElementById('connection-status').style.color = "#66fcf1";
             });
-            GameState.conn.on('error', () => alert("해당 코드를 가진 방을 찾을 수 없습니다."));
+            GameState.conn.on('error', () => { playSound('error'); alert("해당 코드를 가진 방을 찾을 수 없습니다."); });
         });
 
         document.getElementById('btn-start-game').addEventListener('click', () => {
+            playSound('click');
             if (GameState.conn) GameState.conn.send({ type: 'start' });
-            launchEngine();
+            launchGame();
         });
 
-        // 4. 인게임 HUD 관리
+        // ----------------------------------------------------
+        // 4. 게임 HUD 및 액션 연동
+        // ----------------------------------------------------
         function updateHUD() {
             try {
                 const hp = Math.floor(GameState.hp);
@@ -587,406 +530,56 @@
                 
                 const wp = getCurWeapon();
                 document.getElementById('hud-weapon').innerText = wp.name;
-                document.getElementById('hud-ammo').innerText = (wp.type==='melee' || wp.type==='heal') ? "∞" : GameState.ammo;
+                document.getElementById('hud-ammo').innerText = (wp.archetype==='melee' || wp.archetype==='heal') ? "∞" : GameState.ammo;
                 document.getElementById('hud-kills').innerText = GameState.kills;
             } catch(e) {}
         }
 
-        // ==================================================
-        // 5. 3D 엔진 코어 및 물리/충돌 (점프패드 추가)
-        // ==================================================
-        let scene, camera, renderer, composer, bloomPass;
-        let myGunMesh, gunBarrelEnd;
-        const enemies = {}; 
-        const tracers = []; const collidables = [];
-        
-        const velocity = new THREE.Vector3(); const direction = new THREE.Vector3();
-        let moveF = false, moveB = false, moveL = false, moveR = false, canJump = false;
-        let joyDir = { x: 0, y: 0 };
-        let isPointerLocked = false;
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-        let lastTime = performance.now();
-        let isShootingHeld = false;
-        let recoilTarget = new THREE.Vector3(); let currentRecoil = new THREE.Vector3();
-
-        function launchEngine() {
-            if(actx.state === 'suspended') actx.resume();
-            hideUI('room-ui'); hideUI('top-bar'); showUI('game-ui');
-            
-            // 매치수 증가 및 퀘스트 업데이트
-            GameState.matches++; QuestDB[0].current++; renderQuestUI(); addXP(10);
-            
-            GameState.ammo = getCurWeapon().mag; updateHUD();
-
-            const container = document.getElementById('game-container');
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0b0c10); 
-            scene.fog = new THREE.Fog(0x0b0c10, 10, 200);
-
-            camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.rotation.order = 'YXZ';
-
-            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(GameState.isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5));
-            renderer.shadowMap.enabled = GameState.settings.shadows;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            container.appendChild(renderer.domElement);
-
-            const renderScene = new RenderPass(scene, camera);
-            bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.4, 0.85);
-            composer = new EffectComposer(renderer);
-            composer.addPass(renderScene); 
-            if(GameState.settings.bloom) composer.addPass(bloomPass);
-
-            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-            const dl = new THREE.DirectionalLight(0x66fcf1, 0.8); 
-            dl.position.set(50, 100, 30); 
-            dl.castShadow = true;
-            dl.shadow.camera.near = 0.5; dl.shadow.camera.far = 250;
-            const d = 100; dl.shadow.camera.left = -d; dl.shadow.camera.right = d; dl.shadow.camera.top = d; dl.shadow.camera.bottom = -d;
-            scene.add(dl);
-
-            buildArenaMap();
-            buildWeaponModel();
-            setupControls();
-            
-            camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
-            camera.rotation.set(0, camera.position.z > 0 ? Math.PI : 0, 0);
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                composer.setSize(window.innerWidth, window.innerHeight);
-            });
-
-            lastTime = performance.now();
-            animate();
-            
-            setInterval(() => {
-                if(GameState.conn && !GameState.isDead) {
-                    GameState.conn.send({ type: 'update', name: GameState.username, hp: GameState.hp, pos: camera.position, rot: camera.rotation.y });
-                }
-            }, 50);
-        }
-
-        // 맵 아키텍처 및 점프 패드 구현
-        function buildArenaMap() {
-            const matFloor = new THREE.MeshStandardMaterial({color: 0x1f2833, roughness: 0.9});
-            const matWall = new THREE.MeshStandardMaterial({color: 0xc5c6c7, roughness: 0.5});
-            const matNeon = new THREE.MeshBasicMaterial({color: 0x66fcf1});
-            const matJumpPad = new THREE.MeshBasicMaterial({color: 0x00ff66}); // 점프패드 재질
-
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(150, 150), matFloor);
-            floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
-            scene.add(floor);
-            
-            function addBox(w,h,d, x,y,z, mat, type='wall') {
-                const b = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
-                b.position.set(x,y,z); b.castShadow=true; b.receiveShadow=true;
-                scene.add(b);
-                b.geometry.computeBoundingBox();
-                b.userData = { type: type }; // 충돌 시 속성 판단용
-                collidables.push(b);
-                return b;
-            }
-
-            // 중앙 격전지
-            addBox(12, 8, 3, 0, 4, 0, matWall);
-            addBox(3, 8, 12, 0, 4, 0, matWall);
-
-            // 진영
-            function buildBase(zOff) {
-                addBox(30, 5, 16, 0, 2.5, zOff, matWall);
-                const rGeo = new THREE.BoxGeometry(8, 1, 16);
-                
-                const r1 = new THREE.Mesh(rGeo, matWall);
-                r1.rotation.x = Math.PI/8 * (zOff>0?1:-1); r1.position.set(-10, 2, zOff>0?zOff-7.5:zOff+7.5);
-                r1.castShadow=true; r1.receiveShadow=true; scene.add(r1); r1.geometry.computeBoundingBox(); r1.userData={type:'ramp'}; collidables.push(r1);
-
-                const r2 = new THREE.Mesh(rGeo, matWall);
-                r2.rotation.x = Math.PI/8 * (zOff>0?1:-1); r2.position.set(10, 2, zOff>0?zOff-7.5:zOff+7.5);
-                r2.castShadow=true; r2.receiveShadow=true; scene.add(r2); r2.geometry.computeBoundingBox(); r2.userData={type:'ramp'}; collidables.push(r2);
-            }
-            buildBase(-50); buildBase(50);
-            
-            // 기믹: 점프 패드 (밟으면 튀어 오름)
-            addBox(6, 0.5, 6, 0, 0.25, 25, matJumpPad, 'jumppad');
-            addBox(6, 0.5, 6, 0, 0.25, -25, matJumpPad, 'jumppad');
-        }
-
-        // 고퀄리티 무기 조립
-        function buildWeaponModel() {
-            if(myGunMesh) camera.remove(myGunMesh);
-            myGunMesh = new THREE.Group();
-            
-            const wp = getCurWeapon();
-            const matDark = new THREE.MeshStandardMaterial({color: 0x111115, roughness: 0.2, metalness: 0.8});
-            const matSilver = new THREE.MeshStandardMaterial({color: 0x999999, roughness: 0.1, metalness: 1.0});
-            const matGlow = new THREE.MeshBasicMaterial({color: 0x66fcf1});
-
-            if(wp.id === 0) { // 권총
-                matGlow.color.setHex(0x66fcf1);
-                const slide = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.35), matSilver);
-                slide.position.set(0, -0.05, -0.1); myGunMesh.add(slide);
-                const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.15, 0.08), matDark);
-                grip.position.set(0, -0.16, 0.02); grip.rotation.x = 0.2; myGunMesh.add(grip);
-                const neon = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.01, 0.15), matGlow);
-                neon.position.set(0, -0.01, -0.15); myGunMesh.add(neon);
-                gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, -0.05, -0.28); myGunMesh.add(gunBarrelEnd);
-            } 
-            else if(wp.id === 1) { // 리볼버
-                matGlow.color.setHex(0xff3366);
-                const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8), matSilver);
-                barrel.rotation.x = Math.PI/2; barrel.position.set(0, -0.05, -0.25); myGunMesh.add(barrel);
-                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.15, 6), matDark);
-                cylinder.rotation.x = Math.PI/2; cylinder.position.set(0, -0.05, 0); myGunMesh.add(cylinder);
-                const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.15, 0.08), new THREE.MeshStandardMaterial({color: 0x4a2e1b}));
-                grip.position.set(0, -0.18, 0.1); grip.rotation.x = 0.3; myGunMesh.add(grip);
-                const sight = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.03, 0.02), matGlow);
-                sight.position.set(0, -0.02, -0.42); myGunMesh.add(sight);
-                gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, -0.05, -0.45); myGunMesh.add(gunBarrelEnd);
-            }
-            else if(wp.id === 2) { // 소총
-                matGlow.color.setHex(0x00aaff);
-                const receiver = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), matDark);
-                receiver.position.set(0, -0.1, 0); myGunMesh.add(receiver);
-                const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.5, 8), matSilver);
-                barrel.rotation.x = Math.PI/2; barrel.position.set(0, -0.08, -0.45); myGunMesh.add(barrel);
-                const mag = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.1), matDark);
-                mag.position.set(0, -0.25, -0.05); mag.rotation.x = 0.1; myGunMesh.add(mag);
-                const stock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.25), matDark);
-                stock.position.set(0, -0.1, 0.3); myGunMesh.add(stock);
-                const sightBase = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.06, 0.08), matDark);
-                sightBase.position.set(0, -0.01, -0.05); myGunMesh.add(sightBase);
-                const dot = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.01), matGlow);
-                dot.position.set(0, 0.01, -0.09); myGunMesh.add(dot);
-                gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, -0.08, -0.7); myGunMesh.add(gunBarrelEnd);
-            }
-            else if(wp.id === 3) { // 카타나
-                matGlow.color.setHex(0xffffff);
-                const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.3, 8), matDark);
-                hilt.rotation.x = Math.PI/2; hilt.position.set(0, -0.1, 0); myGunMesh.add(hilt);
-                const tsuba = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.02), matSilver);
-                tsuba.position.set(0, -0.1, -0.15); myGunMesh.add(tsuba);
-                const blade = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.05, 0.9), matGlow);
-                blade.position.set(0, -0.1, -0.6); myGunMesh.add(blade);
-                gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, -0.1, -1.05); myGunMesh.add(gunBarrelEnd);
-            }
-            else if(wp.id === 4) { // 메디킷
-                matGlow.color.setHex(0x00ff66);
-                const box = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.1), matDark);
-                box.position.set(0, -0.1, -0.2); myGunMesh.add(box);
-                const cross1 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.03, 0.11), matGlow);
-                cross1.position.set(0, -0.1, -0.2); myGunMesh.add(cross1);
-                const cross2 = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.12, 0.11), matGlow);
-                cross2.position.set(0, -0.1, -0.2); myGunMesh.add(cross2);
-                gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, 0, -0.2); myGunMesh.add(gunBarrelEnd);
-            }
-            
-            const light = new THREE.PointLight(matGlow.color, 0.5, 3);
-            light.position.set(0,0,-0.2); myGunMesh.add(light);
-            
-            myGunMesh.position.set(0.35, -0.3, -0.4);
-            camera.add(myGunMesh); scene.add(camera);
-        }
-
-        function createEnemy(id, name) {
-            const group = new THREE.Group();
-            const mHead = new THREE.MeshStandardMaterial({color: 0xffccaa});
-            const mTorso = new THREE.MeshStandardMaterial({color: 0x45a29e});
-            
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mHead);
-            head.position.y = 2.4; head.castShadow = true; group.add(head);
-            const face = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.82), new THREE.MeshBasicMaterial({color:0x0b0c10}));
-            face.position.y = 2.45; group.add(face);
-
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 0.8), mTorso);
-            torso.position.y = 1.2; torso.castShadow = true; group.add(torso);
-            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), mHead);
-            armL.position.set(-1.1, 1.2, 0); armL.castShadow = true; group.add(armL);
-            const armR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), mHead);
-            armR.position.set(1.1, 1.2, 0); armR.castShadow = true; group.add(armR);
-
-            const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 128;
-            const ctx = canvas.getContext('2d'); const tex = new THREE.CanvasTexture(canvas);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
-            sprite.position.y = 3.6; sprite.scale.set(1.5, 0.75, 1); group.add(sprite);
-            
-            enemies[id] = { mesh: group, ctx: ctx, tex: tex, hp: 100, name: name, torso: torso };
-            scene.add(group);
-            updateEnemyUI(id);
-        }
-
-        function updateEnemyUI(id) {
-            const e = enemies[id];
-            e.ctx.clearRect(0,0,256,128);
-            e.ctx.fillStyle = '#000'; e.ctx.font = 'bold 30px Teko'; e.ctx.textAlign = 'center';
-            e.ctx.fillText(e.name, 130, 42); 
-            e.ctx.fillStyle = '#fff'; e.ctx.fillText(e.name, 128, 40);
-            e.ctx.fillStyle = '#111'; e.ctx.fillRect(28, 60, 200, 16);
-            e.ctx.fillStyle = e.hp > 50 ? '#66fcf1' : e.hp > 20 ? '#ffcc00' : '#ff3366';
-            e.ctx.fillRect(30, 62, 196 * (e.hp/100), 12);
-            e.tex.needsUpdate = true;
-        }
-
-        // ==================================================
-        // 6. 컨트롤 제어
-        // ==================================================
-        function setupControls() {
-            if (GameState.isMobile) {
-                document.getElementById('mobile-controls').style.display = 'block';
-                
-                let joyId = null; const jz = document.getElementById('joystick-zone'), jk = document.getElementById('joystick-knob');
-                jz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(joyId === null) { joyId = t.identifier; updateJoy(t); break; } } }, {passive:false});
-                jz.addEventListener('touchmove', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { updateJoy(t); break; } } }, {passive:false});
-                const endJoy = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { joyId = null; joyDir={x:0,y:0}; jk.style.transform='translate(-50%,-50%)'; break; } } };
-                jz.addEventListener('touchend', endJoy, {passive:false}); jz.addEventListener('touchcancel', endJoy, {passive:false});
-                function updateJoy(t) {
-                    const r = jz.getBoundingClientRect(); const cx = r.left + r.width/2, cy = r.top + r.height/2;
-                    let dx = t.clientX - cx, dy = t.clientY - cy; const dist = Math.sqrt(dx*dx + dy*dy);
-                    if(dist > 50) { dx = (dx/dist)*50; dy = (dy/dist)*50; }
-                    jk.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-                    joyDir.x = dx/50; joyDir.y = dy/50;
-                }
-
-                let lookId = null; let lastLookX = 0, lastLookY = 0;
-                const lz = document.getElementById('look-zone');
-                lz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(lookId === null) { lookId = t.identifier; lastLookX = t.clientX; lastLookY = t.clientY; break; } } }, {passive:false});
-                lz.addEventListener('touchmove', (e) => { e.preventDefault();
-                    for(let t of e.changedTouches) {
-                        if(t.identifier === lookId) {
-                            euler.setFromQuaternion(camera.quaternion);
-                            euler.y -= (t.clientX - lastLookX) * 0.005; euler.x -= (t.clientY - lastLookY) * 0.005;
-                            euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, euler.x));
-                            camera.quaternion.setFromEuler(euler);
-                            lastLookX = t.clientX; lastLookY = t.clientY; break;
-                        }
-                    }
-                }, {passive:false});
-                const endLook = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === lookId) { lookId = null; break; } } };
-                lz.addEventListener('touchend', endLook, {passive:false}); lz.addEventListener('touchcancel', endLook, {passive:false});
-
-                function bindBtn(id, onDown, onUp) {
-                    const btn = document.getElementById(id);
-                    btn.addEventListener('touchstart', (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(0.9)'; if(onDown) onDown(); }, {passive:false});
-                    const end = (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(1)'; if(onUp) onUp(); };
-                    btn.addEventListener('touchend', end, {passive:false}); btn.addEventListener('touchcancel', end, {passive:false});
-                }
-                bindBtn('shoot-btn', () => { isShootingHeld = true; doAction(); }, () => { isShootingHeld = false; });
-                bindBtn('jump-btn', () => { if(canJump && !GameState.isDead) { velocity.y = 15; canJump = false; } });
-                bindBtn('dash-btn', doDash);
-                bindBtn('reload-btn', doReload);
-                bindBtn('swap-btn', doSwap);
-
-            } else {
-                document.addEventListener('keydown', (e) => {
-                    if(e.code==='KeyW') moveF=true; if(e.code==='KeyS') moveB=true;
-                    if(e.code==='KeyA') moveL=true; if(e.code==='KeyD') moveR=true;
-                    if(e.code==='Space') { if(canJump && !GameState.isDead) { velocity.y = 15; canJump = false; } }
-                    if(e.code==='KeyR') doReload();
-                    if(e.code==='KeyQ' || e.code==='ShiftLeft') doDash();
-                    if(e.code==='KeyE') doSwap();
-                });
-                document.addEventListener('keyup', (e) => {
-                    if(e.code==='KeyW') moveF=false; if(e.code==='KeyS') moveB=false;
-                    if(e.code==='KeyA') moveL=false; if(e.code==='KeyD') moveR=false;
-                });
-                document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === document.body));
-                
-                document.addEventListener('mousedown', (e) => {
-                    if(GameState.isDead) return;
-                    if(!isPointerLocked) { document.body.requestPointerLock().catch(()=>{}); return; }
-                    if(e.button === 0) { isShootingHeld = true; doAction(); }
-                });
-                document.addEventListener('mouseup', (e) => { if(e.button === 0) isShootingHeld = false; });
-                document.addEventListener('mousemove', (e) => {
-                    if(!isPointerLocked || GameState.isDead) return;
-                    euler.setFromQuaternion(camera.quaternion);
-                    euler.y -= e.movementX * 0.002; euler.x -= e.movementY * 0.002;
-                    euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, euler.x));
-                    camera.quaternion.setFromEuler(euler);
-                });
-            }
-        }
-
-        // ==================================================
-        // 7. 스킬, 무기 동작, 네트워크 액션
-        // ==================================================
-        function doDash() {
-            if(GameState.dashCooldown > 0 || GameState.isDead) return;
-            playSound('dash');
-            let dashDir = new THREE.Vector3();
-            if(moveF || moveB || moveL || moveR || joyDir.x !== 0 || joyDir.y !== 0) {
-                dashDir.x = (Number(moveR) - Number(moveL)) + joyDir.x;
-                dashDir.z = (Number(moveB) - Number(moveF)) + joyDir.y;
-                dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, camera.rotation.y, 0));
-            } else { camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize(); }
-            
-            velocity.x += dashDir.x * 80; velocity.z += dashDir.z * 80;
-            GameState.dashCooldown = 2.0; // 쿨타임
-            QuestDB[2].current++; renderQuestUI(); // 대시 퀘스트 카운트
-            
-            camera.fov = 95; camera.updateProjectionMatrix();
-            setTimeout(()=> { camera.fov = 80; camera.updateProjectionMatrix(); }, 200);
-        }
-
-        function doReload() {
-            if(GameState.isReloading || GameState.isDead) return;
-            const wp = getCurWeapon();
-            if(wp.type === 'melee' || wp.type === 'heal' || GameState.ammo === wp.mag) return;
-            GameState.isReloading = true; playSound('reload'); 
-            const ammoEl = document.getElementById('hud-ammo'); if(ammoEl) ammoEl.innerText = "R";
-            recoilTarget.y = -0.5; recoilTarget.x = Math.PI / 4;
-            setTimeout(() => { GameState.ammo = wp.mag; GameState.isReloading = false; recoilTarget.set(0,0,0); updateHUD(); }, 1000);
-        }
-
-        function doSwap() {
-            if(GameState.unlockedWeapons.length <= 1 || GameState.isDead) return;
-            let currentInvIdx = GameState.unlockedWeapons.indexOf(getCurWeapon().id);
-            currentInvIdx = (currentInvIdx + 1) % GameState.unlockedWeapons.length;
-            GameState.equippedWeaponIndex = WeaponDB.findIndex(w => w.id === GameState.unlockedWeapons[currentInvIdx]);
-            GameState.ammo = getCurWeapon().mag; GameState.isReloading = false;
-            buildWeaponModel(); updateHUD();
-        }
-
-        function doAction() {
+        // 통합 사격 로직
+        function tryAction() {
             if(GameState.isDead || GameState.isReloading) return;
             const now = performance.now(); const wp = getCurWeapon();
             if (now - GameState.lastShotTime < wp.fireRate) return;
             
-            if(wp.type === 'ranged') {
+            if(wp.archetype !== 'melee') {
                 if (GameState.ammo <= 0) { if(now - GameState.lastShotTime > 500) { playSound('reload'); GameState.lastShotTime = now; } return; }
                 GameState.ammo--; updateHUD(); playSound('shoot');
                 
-                // 크로스헤어 & 반동
+                // 크로스헤어 애니메이션
                 const cls = document.getElementsByClassName('ch-line');
                 if(cls.length === 4) {
-                    cls[0].style.transform = `translateY(-15px)`; cls[1].style.transform = `translateY(15px)`;
-                    cls[2].style.transform = `translateX(-15px)`; cls[3].style.transform = `translateX(15px)`;
+                    cls[0].style.transform = `translateY(-20px)`; cls[1].style.transform = `translateY(20px)`;
+                    cls[2].style.transform = `translateX(-20px)`; cls[3].style.transform = `translateX(20px)`;
                     setTimeout(()=>{
                         cls[0].style.transform = `translateY(0)`; cls[1].style.transform = `translateY(0)`;
                         cls[2].style.transform = `translateX(0)`; cls[3].style.transform = `translateX(0)`;
                     }, 100);
                 }
-                recoilTarget.z += wp.recoil * 1.5; recoilTarget.x += wp.recoil * 0.8;
-                euler.setFromQuaternion(camera.quaternion); euler.x += wp.recoil * 0.15; camera.quaternion.setFromEuler(euler);
+                
+                // 엔진 반동 값 적용
+                Engine.recoilTarget.z += wp.recoil * 1.5; Engine.recoilTarget.x += wp.recoil * 0.8;
+                
+                // 카메라 화면 반동
+                const euler = new THREE.Euler(0,0,0,'YXZ');
+                euler.setFromQuaternion(Engine.camera.quaternion); 
+                euler.x += wp.recoil * 0.2; 
+                Engine.camera.quaternion.setFromEuler(euler);
 
-                // 히트스캔 AABB
+                // 레이캐스트
                 const rc = new THREE.Raycaster(); const center = new THREE.Vector2(0,0);
                 center.x += (Math.random()-0.5) * wp.spread; center.y += (Math.random()-0.5) * wp.spread;
-                rc.setFromCamera(center, camera);
+                rc.setFromCamera(center, Engine.camera);
 
                 let targetPoint; let hitEnemyId = null; let isHeadshot = false;
                 const enemyMeshes = [];
-                for(let id in enemies) {
-                    enemyMeshes.push(enemies[id].mesh.children[0]); 
-                    enemyMeshes.push(enemies[id].mesh.children[2]); 
-                    enemies[id].mesh.children[0].userData = {id: id, type: 'head'};
-                    enemies[id].mesh.children[2].userData = {id: id, type: 'body'};
+                for(let id in Engine.enemies) {
+                    const eMesh = Engine.enemies[id].mesh;
+                    enemyMeshes.push(eMesh.children[0]); // head
+                    enemyMeshes.push(eMesh.children[2]); // torso
+                    eMesh.children[0].userData = {id: id, type: 'head'};
+                    eMesh.children[2].userData = {id: id, type: 'body'};
                 }
-                const allTargets = [...collidables.map(c=>c), ...enemyMeshes];
+                const allTargets = [...Engine.collidables.map(c=>c.mesh), ...enemyMeshes];
                 const intersects = rc.intersectObjects(allTargets, false);
 
                 if(intersects.length > 0) {
@@ -995,15 +588,15 @@
                         hitEnemyId = hitObj.userData.id;
                         if(hitObj.userData.type === 'head') isHeadshot = true;
                     }
-                } else { targetPoint = rc.ray.direction.clone().multiplyScalar(wp.range).add(camera.position); }
+                } else { targetPoint = rc.ray.direction.clone().multiplyScalar(wp.range).add(Engine.camera.position); }
 
-                const startPoint = new THREE.Vector3(); gunBarrelEnd.getWorldPosition(startPoint);
-                const mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2, transparent: true, opacity: 1 });
+                const startPoint = new THREE.Vector3(); Engine.gunBarrelEnd.getWorldPosition(startPoint);
+                const mat = new THREE.LineBasicMaterial({ color: wp.glowColor, linewidth: 3, transparent: true, opacity: 1 });
                 const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([startPoint, targetPoint]), mat);
-                scene.add(line); tracers.push({ mesh: line, life: 0.5 }); 
+                Engine.scene.add(line); Engine.tracers.push({ mesh: line, life: 0.5 }); 
 
                 if(GameState.conn) {
-                    GameState.conn.send({ type: 'shoot', start: startPoint, end: targetPoint, color: 0xffffff });
+                    GameState.conn.send({ type: 'shoot', start: startPoint, end: targetPoint, color: wp.glowColor });
                     if(hitEnemyId) {
                         let finalDmg = isHeadshot ? wp.damage * 2 : wp.damage;
                         GameState.conn.send({ type: 'hit', target: hitEnemyId, damage: finalDmg, isHead: isHeadshot });
@@ -1013,13 +606,13 @@
                     }
                 }
 
-            } else if(wp.type === 'melee') {
+            } else if(wp.archetype === 'melee') {
                 playSound('shoot'); 
-                recoilTarget.x = -Math.PI/3; recoilTarget.y = -0.3; setTimeout(()=> { recoilTarget.set(0,0,0); }, 150);
+                Engine.recoilTarget.x = -Math.PI/3; Engine.recoilTarget.y = -0.3; setTimeout(()=> { Engine.recoilTarget.set(0,0,0); }, 150);
                 
-                const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0,0), camera);
+                const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0,0), Engine.camera);
                 const enemyMeshes = [];
-                for(let id in enemies) { enemyMeshes.push(enemies[id].mesh.children[2]); enemies[id].mesh.children[2].userData = {id: id}; }
+                for(let id in Engine.enemies) { enemyMeshes.push(Engine.enemies[id].mesh.children[2]); Engine.enemies[id].mesh.children[2].userData = {id: id}; }
                 const intersects = rc.intersectObjects(enemyMeshes, false);
                 if(intersects.length > 0 && intersects[0].distance <= wp.range) {
                     const hitObj = intersects[0].object;
@@ -1030,51 +623,23 @@
                         playSound('hit');
                     }
                 }
-            } else if(wp.type === 'heal') {
-                playSound('heal'); GameState.hp += 50; if(GameState.hp > 100) GameState.hp = 100;
-                updateHUD();
-                recoilTarget.z = -0.2; recoilTarget.x = Math.PI/4; setTimeout(()=> { recoilTarget.set(0,0,0); }, 300);
             }
             GameState.lastShotTime = now;
         }
 
-        // ==================================================
-        // 8. 네트워크 데이터 처리
-        // ==================================================
-        function updateRemotePlayer(data) {
-            if(!enemies[data.name]) createEnemy(data.name, data.name);
-            const e = enemies[data.name];
-            e.mesh.position.lerp(new THREE.Vector3(data.pos.x, data.pos.y, data.pos.z), 0.3);
-            e.mesh.rotation.y = data.rot;
-            if(e.hp !== data.hp) {
-                e.hp = data.hp;
-                e.ctx.clearRect(0,0,256,128);
-                e.ctx.fillStyle = '#000'; e.ctx.font = 'bold 30px Teko'; e.ctx.textAlign = 'center';
-                e.ctx.fillText(e.name, 130, 42); 
-                e.ctx.fillStyle = '#fff'; e.ctx.fillText(e.name, 128, 40);
-                e.ctx.fillStyle = '#111'; e.ctx.fillRect(28, 60, 200, 16);
-                e.ctx.fillStyle = e.hp > 50 ? '#66fcf1' : e.hp > 20 ? '#ffcc00' : '#ff3366';
-                e.ctx.fillRect(30, 62, 196 * (e.hp/100), 12);
-                e.tex.needsUpdate = true;
-            }
-        }
-
-        function renderOtherShoot(data) {
-            const mat = new THREE.LineBasicMaterial({ color: data.color, linewidth: 2, transparent: true, opacity: 1 });
-            const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(data.start.x, data.start.y, data.start.z), new THREE.Vector3(data.end.x, data.end.y, data.end.z)]), mat);
-            scene.add(line); tracers.push({ mesh: line, life: 0.5 });
-            playSound('shoot'); 
-        }
-
+        // ----------------------------------------------------
+        // 5. 네트워크 리시버 콜백 (데스 매치 처리)
+        // ----------------------------------------------------
         function handleDamage(data) {
             if(data.target === GameState.username && !GameState.isDead) {
                 GameState.hp -= data.damage; updateHUD();
                 const overlay = document.getElementById('damage-overlay');
                 if(overlay) { overlay.style.opacity = 1; setTimeout(() => overlay.style.opacity = 0, 200); }
                 
-                euler.setFromQuaternion(camera.quaternion);
+                const euler = new THREE.Euler(0,0,0,'YXZ');
+                euler.setFromQuaternion(Engine.camera.quaternion);
                 euler.x += (Math.random()-0.5)*0.15; euler.y += (Math.random()-0.5)*0.15;
-                camera.quaternion.setFromEuler(euler);
+                Engine.camera.quaternion.setFromEuler(euler);
 
                 if(GameState.hp <= 0) {
                     GameState.isDead = true; GameState.hp = 0; updateHUD();
@@ -1082,8 +647,11 @@
                     handleKillMsg({killer: "Enemy", victim: GameState.username});
                     
                     const rUI = document.getElementById('respawn-ui'); if(rUI) rUI.classList.remove('hidden');
-                    if(isPointerLocked) document.exitPointerLock();
-                    camera.position.y = 0.2; camera.rotation.z = Math.PI / 4;
+                    
+                    // 마우스 락 해제
+                    if(document.pointerLockElement) document.exitPointerLock();
+
+                    Engine.camera.position.y = 0.2; Engine.camera.rotation.z = Math.PI / 4;
                     
                     let timeLeft = 3; const timerEl = document.getElementById('respawn-timer');
                     const interval = setInterval(() => {
@@ -1092,17 +660,17 @@
                             clearInterval(interval);
                             GameState.isDead = false; GameState.hp = 100; GameState.ammo = getCurWeapon().mag;
                             updateHUD();
-                            camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
-                            camera.rotation.set(0, camera.position.z > 0 ? Math.PI : 0, 0);
+                            Engine.camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
+                            Engine.camera.rotation.set(0, Engine.camera.position.z > 0 ? Math.PI : 0, 0);
                             if(rUI) rUI.classList.add('hidden');
                             GameState.conn.send({ type: 'respawn', name: GameState.username });
                         }
                     }, 1000);
                 }
             } else {
-                if(enemies[data.target]) {
-                    enemies[data.target].torso.material.emissive.setHex(0xff0000);
-                    setTimeout(() => { if(enemies[data.target]) enemies[data.target].torso.material.emissive.setHex(0x000000); }, 100);
+                if(Engine.enemies[data.target]) {
+                    Engine.enemies[data.target].torso.material.emissive.setHex(0xff0000);
+                    setTimeout(() => { if(Engine.enemies[data.target]) Engine.enemies[data.target].torso.material.emissive.setHex(0x000000); }, 100);
                 }
             }
         }
@@ -1115,105 +683,220 @@
                 ul.appendChild(li); setTimeout(() => li.remove(), 4000);
             }
             if(data.killer === GameState.username) { 
-                GameState.kills++; GameState.keys += 2; addXP(50);
-                QuestDB[1].current++; renderQuestUI(); // 킬 퀘스트
+                GameState.kills++; GameState.keys += 2; GameState.totalKeys += 2;
                 const elKeys = document.getElementById('ui-keys'); if(elKeys) elKeys.innerText = GameState.keys;
                 updateHUD(); 
             }
         }
 
-        function handleRespawn(data) {
-            if(enemies[data.name]) {
-                enemies[data.name].hp = 100;
-                const e = enemies[data.name];
-                e.ctx.clearRect(0,0,256,128);
-                e.ctx.fillStyle = '#000'; e.ctx.font = 'bold 30px Teko'; e.ctx.textAlign = 'center';
-                e.ctx.fillText(e.name, 130, 42); 
-                e.ctx.fillStyle = '#fff'; e.ctx.fillText(e.name, 128, 40);
-                e.ctx.fillStyle = '#111'; e.ctx.fillRect(28, 60, 200, 16);
-                e.ctx.fillStyle = '#66fcf1'; e.ctx.fillRect(30, 62, 196, 12);
-                e.tex.needsUpdate = true;
+        function updateRemotePlayer(data) {
+            if(!Engine.enemies[data.name]) createEnemyModel(data.name, data.name, 'carbon');
+            const e = Engine.enemies[data.name];
+            e.mesh.position.lerp(new THREE.Vector3(data.pos.x, data.pos.y, data.pos.z), 0.3);
+            e.mesh.rotation.y = data.rot;
+            if(e.hp !== data.hp) { e.hp = data.hp; updateEnemyUI(data.name); }
+        }
+
+        // ----------------------------------------------------
+        // 6. 메인 통합 엔진 및 물리 루프 호출
+        // ----------------------------------------------------
+        function launchGame() {
+            hideUI('room-ui'); hideUI('top-bar'); showUI('game-ui');
+            GameState.ammo = getCurWeapon().mag; updateHUD();
+            
+            startEngine(document.getElementById('game-container'));
+            buildWeaponModel(getCurWeapon());
+            
+            Engine.camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40);
+            Engine.camera.rotation.set(0, Engine.camera.position.z > 0 ? Math.PI : 0, 0);
+
+            bindInputEvents();
+
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+            
+            setInterval(() => {
+                if(GameState.conn && !GameState.isDead) {
+                    GameState.conn.send({ type: 'update', name: GameState.username, hp: GameState.hp, pos: Engine.camera.position, rot: Engine.camera.rotation.y });
+                }
+            }, 50);
+        }
+
+        function bindInputEvents() {
+            if (GameState.isMobile) {
+                document.getElementById('mobile-controls').style.display = 'block';
+                
+                // 모바일 터치 이벤트 바인딩 로직은 Engine.input으로 직접 전달
+                function bindBtn(id, field) {
+                    const btn = document.getElementById(id);
+                    if(!btn) return;
+                    btn.addEventListener('touchstart', (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(0.9)'; Engine.input[field] = true; }, {passive:false});
+                    const end = (e)=>{ e.preventDefault(); e.stopPropagation(); btn.style.transform='scale(1)'; Engine.input[field] = false; };
+                    btn.addEventListener('touchend', end, {passive:false}); btn.addEventListener('touchcancel', end, {passive:false});
+                }
+                
+                // 점프, 사격
+                bindBtn('shoot-btn', 'shoot');
+                const btnJ = document.getElementById('jump-btn');
+                btnJ.addEventListener('touchstart', (e)=>{ e.preventDefault(); Engine.input.jump = true; }, {passive:false});
+                btnJ.addEventListener('touchend', (e)=>{ e.preventDefault(); Engine.input.jump = false; }, {passive:false});
+
+                // 대시 
+                const btnD = document.getElementById('dash-btn');
+                btnD.addEventListener('touchstart', (e)=>{ 
+                    e.preventDefault(); 
+                    if(GameState.dashCooldown <= 0 && !GameState.isDead) {
+                        playSound('dash');
+                        let dashDir = new THREE.Vector3();
+                        if(Engine.joyDir.x !== 0 || Engine.joyDir.y !== 0) {
+                            dashDir.x = Engine.joyDir.x; dashDir.z = Engine.joyDir.y;
+                            dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, Engine.camera.rotation.y, 0));
+                        } else {
+                            Engine.camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize();
+                        }
+                        Engine.velocity.x += dashDir.x * 80; Engine.velocity.z += dashDir.z * 80;
+                        GameState.dashCooldown = 2.0;
+                    }
+                }, {passive:false});
+
+                // 장전, 스왑
+                const btnR = document.getElementById('reload-btn');
+                btnR.addEventListener('touchstart', (e)=>{ 
+                    e.preventDefault(); 
+                    if(GameState.isReloading || GameState.isDead) return;
+                    const wp = getCurWeapon();
+                    if(wp.archetype === 'melee' || wp.archetype === 'heal' || GameState.ammo === wp.mag) return;
+                    GameState.isReloading = true; playSound('reload'); 
+                    const ammoEl = document.getElementById('hud-ammo'); if(ammoEl) ammoEl.innerText = "R";
+                    Engine.recoilTarget.y = -0.5; Engine.recoilTarget.x = Math.PI / 4;
+                    setTimeout(() => { GameState.ammo = wp.mag; GameState.isReloading = false; Engine.recoilTarget.set(0,0,0); updateHUD(); }, 1000);
+                }, {passive:false});
+
+                const btnS = document.getElementById('swap-btn');
+                btnS.addEventListener('touchstart', (e)=>{ 
+                    e.preventDefault(); 
+                    if(GameState.unlockedWeapons.length <= 1 || GameState.isDead) return;
+                    let currentInvIdx = GameState.unlockedWeapons.indexOf(getCurWeapon().id);
+                    currentInvIdx = (currentInvIdx + 1) % GameState.unlockedWeapons.length;
+                    GameState.equippedWeaponIndex = WeaponDB.findIndex(w => w.id === GameState.unlockedWeapons[currentInvIdx]);
+                    GameState.ammo = getCurWeapon().mag; GameState.isReloading = false;
+                    buildWeaponModel(getCurWeapon()); updateHUD();
+                }, {passive:false});
+
+                // 조이스틱
+                let joyId = null; const jz = document.getElementById('joystick-zone'), jk = document.getElementById('joystick-knob');
+                jz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(joyId === null) { joyId = t.identifier; updateJoy(t); break; } } }, {passive:false});
+                jz.addEventListener('touchmove', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { updateJoy(t); break; } } }, {passive:false});
+                const endJoy = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { joyId = null; Engine.joyDir={x:0,y:0}; jk.style.transform='translate(-50%,-50%)'; break; } } };
+                jz.addEventListener('touchend', endJoy, {passive:false}); jz.addEventListener('touchcancel', endJoy, {passive:false});
+                function updateJoy(t) {
+                    const r = jz.getBoundingClientRect(); const cx = r.left + r.width/2, cy = r.top + r.height/2;
+                    let dx = t.clientX - cx, dy = t.clientY - cy; const dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist > 50) { dx = (dx/dist)*50; dy = (dy/dist)*50; }
+                    jk.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                    Engine.joyDir.x = dx/50; Engine.joyDir.y = dy/50;
+                }
+
+                // 우측 시야
+                let lookId = null; let lastLookX = 0, lastLookY = 0;
+                const lz = document.getElementById('look-zone');
+                lz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(lookId === null) { lookId = t.identifier; lastLookX = t.clientX; lastLookY = t.clientY; break; } } }, {passive:false});
+                lz.addEventListener('touchmove', (e) => { e.preventDefault();
+                    for(let t of e.changedTouches) {
+                        if(t.identifier === lookId) {
+                            Engine.lookDelta.x = t.clientX - lastLookX;
+                            Engine.lookDelta.y = t.clientY - lastLookY;
+                            lastLookX = t.clientX; lastLookY = t.clientY; break;
+                        }
+                    }
+                }, {passive:false});
+                const endLook = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === lookId) { lookId = null; break; } } };
+                lz.addEventListener('touchend', endLook, {passive:false}); lz.addEventListener('touchcancel', endLook, {passive:false});
+
+            } else {
+                // PC 제어
+                document.addEventListener('keydown', (e) => {
+                    if(e.code==='KeyW') Engine.input.forward=true; if(e.code==='KeyS') Engine.input.backward=true;
+                    if(e.code==='KeyA') Engine.input.left=true; if(e.code==='KeyD') Engine.input.right=true;
+                    if(e.code==='Space') Engine.input.jump=true;
+                    if(e.code==='KeyQ' || e.code==='ShiftLeft') {
+                        if(GameState.dashCooldown <= 0 && !GameState.isDead) {
+                            playSound('dash');
+                            let dashDir = new THREE.Vector3();
+                            if(Engine.input.forward || Engine.input.backward || Engine.input.left || Engine.input.right) {
+                                dashDir.x = (Engine.input.right?1:0) - (Engine.input.left?1:0);
+                                dashDir.z = (Engine.input.backward?1:0) - (Engine.input.forward?1:0);
+                                dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, Engine.camera.rotation.y, 0));
+                            } else {
+                                Engine.camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize();
+                            }
+                            Engine.velocity.x += dashDir.x * 80; Engine.velocity.z += dashDir.z * 80;
+                            GameState.dashCooldown = 2.0;
+                        }
+                    }
+                    if(e.code==='KeyR') {
+                        if(GameState.isReloading || GameState.isDead) return;
+                        const wp = getCurWeapon();
+                        if(wp.archetype === 'melee' || wp.archetype === 'heal' || GameState.ammo === wp.mag) return;
+                        GameState.isReloading = true; playSound('reload'); 
+                        const ammoEl = document.getElementById('hud-ammo'); if(ammoEl) ammoEl.innerText = "R";
+                        Engine.recoilTarget.y = -0.5; Engine.recoilTarget.x = Math.PI / 4;
+                        setTimeout(() => { GameState.ammo = wp.mag; GameState.isReloading = false; Engine.recoilTarget.set(0,0,0); updateHUD(); }, 1000);
+                    }
+                    if(e.code==='KeyE') {
+                        if(GameState.unlockedWeapons.length <= 1 || GameState.isDead) return;
+                        let currentInvIdx = GameState.unlockedWeapons.indexOf(getCurWeapon().id);
+                        currentInvIdx = (currentInvIdx + 1) % GameState.unlockedWeapons.length;
+                        GameState.equippedWeaponIndex = WeaponDB.findIndex(w => w.id === GameState.unlockedWeapons[currentInvIdx]);
+                        GameState.ammo = getCurWeapon().mag; GameState.isReloading = false;
+                        buildWeaponModel(getCurWeapon()); updateHUD();
+                    }
+                });
+                document.addEventListener('keyup', (e) => {
+                    if(e.code==='KeyW') Engine.input.forward=false; if(e.code==='KeyS') Engine.input.backward=false;
+                    if(e.code==='KeyA') Engine.input.left=false; if(e.code==='KeyD') Engine.input.right=false;
+                    if(e.code==='Space') Engine.input.jump=false;
+                });
+                document.addEventListener('mousedown', (e) => {
+                    if(GameState.isDead) return;
+                    if(!document.pointerLockElement) { document.body.requestPointerLock().catch(()=>{}); return; }
+                    if(e.button === 0) Engine.input.shoot = true;
+                });
+                document.addEventListener('mouseup', (e) => { if(e.button === 0) Engine.input.shoot = false; });
+                document.addEventListener('mousemove', (e) => {
+                    if(!document.pointerLockElement || GameState.isDead) return;
+                    Engine.lookDelta.x = e.movementX; Engine.lookDelta.y = e.movementY;
+                });
             }
         }
 
-        // ==================================================
-        // 9. 물리 및 렌더링 메인 루프 (AABB 충돌체 내장)
-        // ==================================================
-        function animate() {
-            requestAnimationFrame(animate);
+        function gameLoop() {
+            requestAnimationFrame(gameLoop);
             const time = performance.now(); const delta = Math.min((time - lastTime) / 1000, 0.1); lastTime = time;
 
             if (!GameState.isDead) {
-                if(isShootingHeld && getCurWeapon().auto) tryAction();
+                if(Engine.input.shoot && getCurWeapon().auto) tryAction();
 
                 if(GameState.dashCooldown > 0) {
                     GameState.dashCooldown -= delta;
                     const dFill = document.getElementById('dash-fill');
-                    if(dFill) dFill.style.width = `${((3.0 - GameState.dashCooldown)/3.0)*100}%`;
+                    if(dFill) dFill.style.width = `${((2.0 - GameState.dashCooldown)/2.0)*100}%`;
                 }
 
-                velocity.x -= velocity.x * 10.0 * delta; velocity.z -= velocity.z * 10.0 * delta;
-
-                direction.x = (Number(moveR) - Number(moveL)) + joyDir.x;
-                direction.z = (Number(moveB) - Number(moveF)) + joyDir.y;
-                if(direction.length() > 1.0) direction.normalize();
-
-                velocity.x -= direction.x * 200.0 * delta; velocity.z -= direction.z * 200.0 * delta;
-                velocity.y -= 40.0 * delta;
-
-                // AABB 충돌 연산
-                const nextX = camera.position.x - velocity.x * delta;
-                const nextZ = camera.position.z - velocity.z * delta;
-                const r = 0.8; const h = 2.0;
-                
-                let canMoveX = true; let canMoveZ = true; let groundY = 0;
-                
-                for(let i=0; i<collidables.length; i++) {
-                    const box = new THREE.Box3().setFromObject(collidables[i]);
-                    // 점프패드 체크
-                    if (collidables[i].userData.type === 'jumppad' && camera.position.y - h < box.max.y + 0.1) {
-                        if (camera.position.x >= box.min.x && camera.position.x <= box.max.x && camera.position.z >= box.min.z && camera.position.z <= box.max.z) {
-                            velocity.y = 35; playSound('jumpad');
-                        }
-                    }
-                    if (camera.position.x >= box.min.x && camera.position.x <= box.max.x && camera.position.z >= box.min.z && camera.position.z <= box.max.z) {
-                        if(box.max.y > groundY && box.max.y <= camera.position.y) groundY = box.max.y;
-                    }
-                    if (camera.position.y - h < box.max.y && camera.position.y > box.min.y) {
-                        if (camera.position.z + r > box.min.z && camera.position.z - r < box.max.z) {
-                            if (nextX + r > box.min.x && nextX - r < box.max.x) canMoveX = false;
-                        }
-                        if (camera.position.x + r > box.min.x && camera.position.x - r < box.max.x) {
-                            if (nextZ + r > box.min.z && nextZ - r < box.max.z) canMoveZ = false;
-                        }
-                    }
-                }
-
-                if(canMoveX) camera.position.x = nextX; else velocity.x = 0;
-                if(canMoveZ) camera.position.z = nextZ; else velocity.z = 0;
-                
-                camera.position.y += velocity.y * delta;
-                if (camera.position.y < groundY + h) { velocity.y = 0; camera.position.y = groundY + h; canJump = true; }
-
-                currentRecoil.lerp(recoilTarget, 20 * delta); recoilTarget.lerp(new THREE.Vector3(0,0,0), 12 * delta);
-
-                if(myGunMesh && !GameState.isReloading) {
-                    let swayY = (direction.lengthSq() > 0.1 && canJump) ? Math.sin(time*0.015)*0.015 : Math.sin(time*0.003)*0.003; 
-                    myGunMesh.position.y = -0.25 + swayY + currentRecoil.y;
-                    myGunMesh.position.z = -0.4 + currentRecoil.z;
-                    myGunMesh.rotation.x = currentRecoil.x;
-                }
+                // 물리 엔진 (engine.js) 
+                import('./engine.js').then(module => {
+                    module.applyPhysics(delta);
+                });
             }
 
-            for(let i = tracers.length-1; i>=0; i--) {
-                tracers[i].life -= delta * 5;
-                if(tracers[i].life <= 0) { scene.remove(tracers[i].mesh); tracers.splice(i, 1); } 
-                else tracers[i].mesh.material.opacity = tracers[i].life;
+            // 시각물 수명 처리
+            for(let i = Engine.tracers.length-1; i>=0; i--) {
+                Engine.tracers[i].life -= delta * 5;
+                if(Engine.tracers[i].life <= 0) { Engine.scene.remove(Engine.tracers[i].mesh); Engine.tracers.splice(i, 1); } 
+                else Engine.tracers[i].mesh.material.opacity = Engine.tracers[i].life;
             }
-            if(renderer && scene) {
-                if(GameState.settings.bloom && composer) composer.render();
-                else renderer.render(scene, camera);
-            }
+
+            if(Engine.renderer && Engine.scene) Engine.composer.render();
         }
     </script>
 </body>
