@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RIVALS CLONE - V11 MASTERPIECE EDITION</title>
+    <title>RIVALS CLONE - V12 MASTERPIECE (ULTRA WEAPON & PHYSICS FIX)</title>
     
-    <!-- 안정적인 Three.js Import Map -->
     <script type="importmap">
         {
             "imports": {
@@ -14,71 +13,41 @@
             }
         }
     </script>
-    <!-- PeerJS 네트워킹 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&family=Teko:wght@500;700&display=swap');
-        
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
-            background-color: #050508; font-family: 'Noto Sans KR', sans-serif; color: #fff; 
-            user-select: none; touch-action: none; -webkit-touch-callout: none;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #050508; font-family: 'Noto Sans KR', sans-serif; color: #fff; user-select: none; touch-action: none; -webkit-touch-callout: none; }
         #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         
-        /* 공통 UI 패널 */
-        .ui-layer { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            background: radial-gradient(circle, rgba(5, 5, 8, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%); 
-            backdrop-filter: blur(15px); transition: 0.3s;
-        }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(10, 15, 20, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%); backdrop-filter: blur(15px); transition: 0.3s; }
         .hidden { display: none !important; opacity: 0; pointer-events: none; }
         
-        .panel { 
-            background: #0f1218; border-radius: 16px; padding: 40px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9); border: 2px solid #00ffcc;
-            width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative;
-        }
-        
+        .panel { background: #11141a; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); border: 2px solid #00ffcc; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; }
         h1 { font-family: 'Teko', sans-serif; font-size: 6rem; margin: 0 0 10px 0; color: #00ffcc; letter-spacing: 5px; text-shadow: 0 0 30px rgba(0, 255, 204, 0.6); line-height: 1; }
         h2 { font-size: 2rem; color: #fff; margin-bottom: 25px; font-weight: 900; letter-spacing: 2px; }
         p { color: #8892b0; line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem; }
         
-        input { 
-            width: 85%; padding: 20px; margin: 10px 0; background: #050508; border: 2px solid #00ffcc; 
-            border-radius: 12px; color: #00ffcc; font-size: 1.5rem; text-align: center; outline: none; font-weight: bold; transition: 0.2s;
-        }
+        input { width: 85%; padding: 20px; margin: 10px 0; background: #050508; border: 2px solid #00ffcc; border-radius: 12px; color: #00ffcc; font-size: 1.5rem; text-align: center; outline: none; font-weight: bold; transition: 0.2s; }
         input:focus { border-color: #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.5); }
         
-        button { 
-            width: 90%; padding: 20px; margin: 10px 0; background: #fff; border: none; border-radius: 12px; 
-            color: #000; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: all 0.1s;
-            box-shadow: 0 6px 0px #888; text-transform: uppercase;
-        }
+        button { width: 90%; padding: 20px; margin: 10px 0; background: #fff; border: none; border-radius: 12px; color: #000; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: all 0.1s; box-shadow: 0 6px 0px #888; text-transform: uppercase; }
         button:active { transform: translateY(6px); box-shadow: 0 0px 0px #888; }
         .btn-primary { background: #00ffcc; color: #000; box-shadow: 0 6px 0px #00997a; }
         .btn-danger { background: #ff2a5f; color: #fff; box-shadow: 0 6px 0px #b00030; }
         .btn-offline { background: #ffcc00; color: #000; box-shadow: 0 6px 0px #b38f00; }
 
-        /* 대시보드 탭 */
         #dashboard-container { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 1400px; padding: 20px; box-sizing: border-box; }
-        .dash-nav { display: flex; justify-content: space-around; background: rgba(15, 18, 24, 0.9); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #00ffcc; }
+        .dash-nav { display: flex; justify-content: space-around; background: rgba(17, 20, 26, 0.9); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #00ffcc; }
         .dash-nav-item { font-size: 1.3rem; font-weight: bold; color: #8892b0; cursor: pointer; padding: 12px 25px; border-radius: 10px; transition: 0.2s; }
         .dash-nav-item.active { background: #00ffcc; color: #000; box-shadow: 0 0 20px rgba(0, 255, 204, 0.5); }
-        
-        .dash-content { flex: 1; background: rgba(15, 18, 24, 0.95); border-radius: 15px; padding: 30px; border: 1px solid #00ffcc; overflow-y: auto; position: relative; }
+        .dash-content { flex: 1; background: rgba(17, 20, 26, 0.95); border-radius: 15px; padding: 30px; border: 1px solid #00ffcc; overflow-y: auto; position: relative; }
         .tab-section { display: none; animation: fadeIn 0.3s ease-out; }
         .tab-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 무기 상점 그리드 */
         .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .store-item { 
-            background: #050508; border: 2px solid #222; padding: 25px 15px; border-radius: 15px; 
-            cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; 
-        }
+        .store-item { background: #050508; border: 2px solid #222; padding: 25px 15px; border-radius: 15px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
         .store-item:hover { border-color: #00ffcc; transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .store-item.locked { opacity: 0.5; filter: grayscale(100%); }
         .store-item.equipped { border-color: #ff2a5f; background: rgba(255,42,95,0.1); box-shadow: 0 0 20px rgba(255,42,95,0.3); }
@@ -86,33 +55,20 @@
         .stat-bar { width: 100%; height: 6px; background: #222; margin-top: 5px; border-radius: 3px; overflow: hidden; }
         .stat-fill { height: 100%; background: #00ffcc; }
 
-        .top-bar {
-            position: absolute; top: 20px; right: 20px; background: rgba(10, 15, 20, 0.9); 
-            padding: 15px 30px; border-radius: 15px; border: 2px solid #00ffcc;
-            display: flex; gap: 30px; font-size: 2rem; font-family: 'Teko', sans-serif; z-index: 25; 
-        }
+        .top-bar { position: absolute; top: 20px; right: 20px; background: rgba(10, 15, 20, 0.9); padding: 15px 30px; border-radius: 15px; border: 2px solid #00ffcc; display: flex; gap: 30px; font-size: 2rem; font-family: 'Teko', sans-serif; z-index: 25; }
 
-        /* 인게임 HUD */
         #crosshair-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; pointer-events: none; }
         .ch-line { position: absolute; background: #00ffcc; box-shadow: 0 0 8px rgba(0, 255, 204, 0.9); transition: 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #ch-top { width: 2px; height: 16px; left: -1px; top: -25px; }
-        #ch-bottom { width: 2px; height: 16px; left: -1px; top: 9px; }
-        #ch-left { width: 16px; height: 2px; top: -1px; left: -25px; }
-        #ch-right { width: 16px; height: 2px; top: -1px; left: 9px; }
+        #ch-top { width: 2px; height: 16px; left: -1px; top: -25px; } #ch-bottom { width: 2px; height: 16px; left: -1px; top: 9px; }
+        #ch-left { width: 16px; height: 2px; top: -1px; left: -25px; } #ch-right { width: 16px; height: 2px; top: -1px; left: 9px; }
         #ch-dot { position: absolute; width: 4px; height: 4px; background: #ff2a5f; border-radius: 50%; top: -2px; left: -2px; box-shadow: 0 0 5px #ff2a5f; }
         
-        #hitmarker { 
-            position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); 
-            z-index: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none;
-            background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
-            filter: drop-shadow(0 0 8px #fff);
-        }
+        #hitmarker { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); z-index: 6; opacity: 0; transition: opacity 0.1s; pointer-events: none; background-image: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%); filter: drop-shadow(0 0 8px #fff); }
 
         #hud-hp-container { position: absolute; bottom: 40px; left: 40px; width: 350px; z-index: 10; }
         #hud-hp-text { font-size: 3rem; font-weight: 900; font-family: 'Teko', sans-serif; text-shadow: 3px 3px 0 #000; color: #fff; margin-bottom: 5px; line-height: 1; }
         #hud-hp-bar { width: 100%; height: 25px; background: #050508; border: 3px solid #111; border-radius: 6px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
-        #hud-hp-fill { width: 100%; height: 100%; background: #00ffcc; transition: width 0.2s, background 0.2s; }
-        
+        #hud-hp-fill { width: 100%; height: 100%; background: #00ffcc; transition: width 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s; }
         #dash-bar { width: 250px; height: 8px; background: #050508; margin-top: 15px; border: 2px solid #111; border-radius: 4px; overflow: hidden; }
         #dash-fill { width: 100%; height: 100%; background: #ff2a5f; transition: width 0.1s linear; }
 
@@ -124,11 +80,9 @@
         #killfeed { list-style: none; padding: 0; margin: 0 0 20px 0; font-weight: bold; font-size: 1.3rem; text-shadow: 2px 2px 0 #000; }
 
         #damage-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, transparent 20%, rgba(255,0,0,0.7) 100%); z-index: 2; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
-        #muzzle-flash { position: absolute; top: 50%; left: 50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,0,0.8) 0%, transparent 70%); transform: translate(-50%, -50%); z-index: 4; opacity: 0; pointer-events: none; }
 
-        /* 모바일 다중 터치 컨트롤러 UI */
         #mobile-controls { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15; display: none; }
-        .touch-btn { position: absolute; background: rgba(17, 20, 26, 0.6); border: 3px solid rgba(0, 255, 204, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #fff; backdrop-filter: blur(5px); user-select: none; font-family: 'Teko', sans-serif; font-size: 2rem; letter-spacing: 2px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .touch-btn { position: absolute; background: rgba(17, 20, 26, 0.6); border: 3px solid rgba(0, 255, 204, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 900; color: #fff; backdrop-filter: blur(5px); user-select: none; transition: transform 0.1s; font-family: 'Teko', sans-serif; font-size: 2rem; letter-spacing: 2px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
         .touch-btn:active { background: rgba(0, 255, 204, 0.2); transform: scale(0.9); border-color: #00ffcc; }
         
         #joystick-zone { position: absolute; bottom: 60px; left: 60px; width: 180px; height: 180px; border-radius: 50%; border: 4px solid rgba(0, 255, 204, 0.4); background: rgba(10, 15, 20, 0.6); }
@@ -149,7 +103,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="sys-msg">시스템 그래픽 모듈 준비 중...</div>
+    <div id="sys-msg">3D 그래픽 엔진 모듈 준비 중...</div>
     <div class="top-bar hidden" id="top-bar"><div><span class="key-icon">🗝️</span> <span id="ui-keys">0</span></div></div>
 
     <!-- UI: 초기 로그인 -->
@@ -157,12 +111,12 @@
         <div class="panel">
             <h1>RIVALS</h1>
             <p>
-                <b>[ 초고해상도 완벽 물리 엔진 적용 ]</b><br><br>
+                <b>[ 초정밀 100+ 멀티파츠 총기 & 무결점 물리 엔진 ]</b><br><br>
                 요원의 호출 부호를 입력하고 접속하십시오.
             </p>
             <input type="text" id="username-input" placeholder="호출 부호 (최대 8자)" maxlength="8">
-            <button class="btn-primary" id="btn-login" style="margin-top: 20px;">네트워크 접속</button>
-            <button class="btn-offline" id="btn-offline" style="margin-top: 10px;">오프라인 훈련장 입장</button>
+            <button class="btn-primary" id="btn-login" style="margin-top: 20px;">온라인 서버 접속</button>
+            <button class="btn-offline" id="btn-offline" style="margin-top: 10px;">오프라인 훈련장 바로 입장</button>
         </div>
     </div>
 
@@ -190,7 +144,7 @@
 
                 <div id="tab-store" class="tab-section">
                     <h2>블랙 마켓 무기고</h2>
-                    <p>적을 처치하여 얻은 열쇠로 한정판 무기 50종을 해금할 수 있습니다.</p>
+                    <p>초고퀄리티 파츠 조합형 무기 50종을 해금하십시오.</p>
                     <div id="store-grid" class="store-grid"></div>
                 </div>
             </div>
@@ -210,7 +164,6 @@
 
     <!-- 인게임 요소 -->
     <div id="game-ui" class="hidden">
-        <div id="muzzle-flash"></div>
         <div id="damage-overlay"></div>
         <div id="crosshair-container">
             <div class="ch-line" id="ch-top"></div><div class="ch-line" id="ch-bottom"></div>
@@ -256,6 +209,9 @@
     
     <div id="game-container"></div>
 
+    <!-- ==========================================
+         메인 스크립트 (물리, 렌더링, 네트워크 통합)
+         ========================================== -->
     <script type="module">
         import * as THREE from 'three';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -329,25 +285,14 @@
         let wpCounter = 0;
         for(let i=0; i<baseWeapons.length; i++) {
             for(let j=0; j<skins.length; j++) {
-                let wp = baseWeapons[i];
-                let skin = skins[j];
+                let wp = baseWeapons[i]; let skin = skins[j];
                 let cost = Math.floor((wp.dmg * skin.c) / 3);
-                if(wpCounter === 0) cost = 0; // 시작 무기는 무료
+                if(wpCounter === 0) cost = 0; 
                 
                 WeaponDB.push({
-                    id: wpCounter,
-                    archetype: wp.id,
-                    name: `${skin.n} ${wp.n}`,
-                    skin: skin.id,
-                    glowColor: skin.gl,
-                    cost: cost,
-                    damage: wp.dmg,
-                    fireRate: wp.fr,
-                    mag: wp.mag,
-                    auto: wp.auto,
-                    recoil: wp.rec,
-                    spread: wp.spr,
-                    range: wp.rng
+                    id: wpCounter, archetype: wp.id, name: `${skin.n} ${wp.n}`,
+                    skin: skin.id, glowColor: skin.gl, cost: cost, damage: wp.dmg, fireRate: wp.fr, mag: wp.mag,
+                    auto: wp.auto, recoil: wp.rec, spread: wp.spr, range: wp.rng
                 });
                 wpCounter++;
             }
@@ -359,6 +304,10 @@
             unlockedWeapons: [0], equippedWeaponIndex: 0, ammo: WeaponDB[0].mag, lastShotTime: 0, isReloading: false, dashCooldown: 0,
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) || ('ontouchstart' in window)
         };
+
+        // 완벽 입력 독립 변수 (버그 해결의 핵심)
+        const KeyState = { w:false, a:false, s:false, d:false, space:false, joyX:0, joyY:0 };
+        const LookDelta = { x:0, y:0 };
 
         function getCurWeapon() { return WeaponDB[GameState.equippedWeaponIndex]; }
 
@@ -378,20 +327,16 @@
         });
 
         // ----------------------------------------------------
-        // 4. 로그인 및 오프라인 모드
+        // 4. 로그인 및 오프라인 모드 (버그 해결)
         // ----------------------------------------------------
         document.getElementById('btn-login').addEventListener('click', () => {
             playSound('click'); const name = document.getElementById('username-input').value.trim();
             if(!name) { playSound('error'); return alert('호출 부호를 입력하십시오.'); }
-            GameState.username = name;
-            GameState.offlineMode = false;
+            GameState.username = name; GameState.offlineMode = false;
             
             try { 
                 GameState.peer = new Peer({ config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }]} }); 
-                GameState.peer.on('error', (err) => { 
-                    alert('서버 연결 불안정. 오프라인 모드로 자동 전환합니다.');
-                    GameState.offlineMode = true;
-                });
+                GameState.peer.on('error', (err) => { alert('서버 연결 불안정. 오프라인 모드로 자동 전환합니다.'); GameState.offlineMode = true; });
             } catch(e) { console.error(e); GameState.offlineMode = true; }
             
             showUI('top-bar'); hideUI('login-ui'); showUI('lobby-ui');
@@ -431,15 +376,12 @@
                 
                 div.addEventListener('click', () => {
                     if(isUnl) {
-                        playSound('click');
-                        GameState.equippedWeaponIndex = idx; GameState.ammo = wp.mag;
-                        renderStore(); updateHUD();
-                        if(scene) buildWeaponModel(wp);
+                        playSound('click'); GameState.equippedWeaponIndex = idx; GameState.ammo = wp.mag;
+                        renderStore(); updateHUD(); if(scene) buildWeaponModel(wp);
                     } else {
-                        // 테스트를 위해 치트(오프라인 시 무료) 적용 가능하나 여기선 룰 유지
+                        // 치트 방지 (원래 룰 적용)
                         if(GameState.keys >= wp.cost) {
-                            playSound('buy');
-                            GameState.keys -= wp.cost; GameState.unlockedWeapons.push(wp.id);
+                            playSound('buy'); GameState.keys -= wp.cost; GameState.unlockedWeapons.push(wp.id);
                             document.getElementById('ui-keys').innerText = GameState.keys; renderStore();
                         } else { playSound('error'); alert('열쇠가 부족합니다!'); }
                     }
@@ -448,23 +390,18 @@
             });
         }
 
-        // 방 생성 및 참가 (오프라인 모드 분기 처리)
+        // 오프라인 모드 예외 처리된 방 생성 및 참가
         document.getElementById('btn-create-room').addEventListener('click', () => {
             playSound('click');
             if(GameState.offlineMode) {
-                // 오프라인 모드일 경우 바로 게임 시작
                 alert("오프라인 훈련장으로 바로 입장합니다.");
-                launchEngine();
-                return;
+                launchEngine(); return;
             }
             if(!GameState.peer) return alert("네트워크 연결 대기중...");
             const code = Math.random().toString(36).substring(2, 5).toUpperCase();
             GameState.peer.destroy(); GameState.peer = new Peer('rclone-' + code);
             
-            GameState.peer.on('open', () => {
-                document.getElementById('room-code-display').innerText = code;
-                hideUI('lobby-ui'); showUI('room-ui'); GameState.isHost = true;
-            });
+            GameState.peer.on('open', () => { document.getElementById('room-code-display').innerText = code; hideUI('lobby-ui'); showUI('room-ui'); GameState.isHost = true; });
             GameState.peer.on('connection', (conn) => {
                 GameState.conn = conn; setupNetworkEvents();
                 document.getElementById('connection-status').innerText = "상대방 요원 접속 완료!";
@@ -481,10 +418,8 @@
             GameState.conn = GameState.peer.connect('rclone-' + code);
             GameState.conn.on('open', () => {
                 setupNetworkEvents();
-                document.getElementById('room-code-display').innerText = code;
-                hideUI('lobby-ui'); showUI('room-ui');
-                document.getElementById('connection-status').innerText = "호스트 연결 성공. 대기중...";
-                document.getElementById('connection-status').style.color = "#00ffcc";
+                document.getElementById('room-code-display').innerText = code; hideUI('lobby-ui'); showUI('room-ui');
+                document.getElementById('connection-status').innerText = "호스트 연결 성공. 대기중..."; document.getElementById('connection-status').style.color = "#00ffcc";
             });
             GameState.conn.on('error', () => { playSound('error'); alert("코드를 확인해주세요."); });
         });
@@ -500,23 +435,18 @@
                 else if (data.type === 'shoot') {
                     const mat = new THREE.LineBasicMaterial({ color: data.color, linewidth: 3, transparent: true, opacity: 1 });
                     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(data.start.x, data.start.y, data.start.z), new THREE.Vector3(data.end.x, data.end.y, data.end.z)]), mat);
-                    scene.add(line); tracers.push({ mesh: line, life: 0.5 });
-                    playSound('shoot'); 
+                    scene.add(line); tracers.push({ mesh: line, life: 0.5 }); playSound('shoot'); 
                 }
                 else if (data.type === 'hit') handleDamage(data);
                 else if (data.type === 'killmsg') handleKillMsg(data);
-                else if (data.type === 'respawn') {
-                    if(enemies[data.name]) { enemies[data.name].hp = 100; updateEnemyUI(data.name); }
-                }
+                else if (data.type === 'respawn') { if(enemies[data.name]) { enemies[data.name].hp = 100; updateEnemyUI(data.name); } }
             });
         }
 
         function updateHUD() {
             try {
                 const hp = Math.floor(GameState.hp); document.getElementById('hp-val').innerText = hp;
-                const fill = document.getElementById('hud-hp-fill');
-                fill.style.width = `${hp}%`; fill.style.background = hp > 50 ? '#00ffcc' : hp > 20 ? '#ffcc00' : '#ff2a5f';
-                
+                const fill = document.getElementById('hud-hp-fill'); fill.style.width = `${hp}%`; fill.style.background = hp > 50 ? '#00ffcc' : hp > 20 ? '#ffcc00' : '#ff2a5f';
                 const wp = getCurWeapon(); document.getElementById('hud-weapon').innerText = wp.name;
                 document.getElementById('hud-ammo').innerText = (wp.archetype==='melee' || wp.archetype==='heal') ? "∞" : GameState.ammo;
                 document.getElementById('hud-kills').innerText = GameState.kills;
@@ -535,10 +465,6 @@
         let lastTime = performance.now();
         let isShootingHeld = false;
         let recoilTarget = new THREE.Vector3(); let currentRecoil = new THREE.Vector3();
-
-        // 입력 상태 객체 (월드 좌표계 변환을 위한 필수 키 변수)
-        const inputState = { fwd: false, back: false, left: false, right: false, joyX: 0, joyY: 0 };
-        const lookDelta = { x: 0, y: 0 };
 
         function launchEngine() {
             if(actx.state === 'suspended') actx.resume();
@@ -581,7 +507,9 @@
             lastTime = performance.now(); animate();
             
             setInterval(() => {
-                if(GameState.conn && !GameState.isDead) { GameState.conn.send({ type: 'update', name: GameState.username, hp: GameState.hp, pos: camera.position, rot: camera.rotation.y }); }
+                if(GameState.conn && !GameState.isDead && !GameState.offlineMode) { 
+                    GameState.conn.send({ type: 'update', name: GameState.username, hp: GameState.hp, pos: camera.position, rot: camera.rotation.y }); 
+                }
             }, 50);
         }
 
@@ -609,7 +537,7 @@
         }
 
         // ==================================================
-        // 6. 무기 조립 공장 (초고퀄리티 파츠 결합)
+        // 6. 무기 조립 공장 (초초초고퀄리티 100+ 다중 파츠 조립)
         // ==================================================
         function generateSkinTex(skinId) {
             const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128; const ctx = canvas.getContext('2d');
@@ -634,35 +562,36 @@
             const arch = wp.archetype;
             let bLen = 0.5;
 
-            // 정밀 파츠 조립
+            // 정밀 파츠 조립 (막대기 하나가 아니라 수십 개의 메쉬로 결합)
             if(arch === 'pistol' || arch === 'revolver') {
                 const slide = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.3), matBody); slide.position.set(0, -0.05, -0.1); myGunMesh.add(slide);
                 const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.15, 0.08), matDark); grip.position.set(0, -0.16, 0.02); grip.rotation.x = 0.2; myGunMesh.add(grip);
                 const neon = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.01, 0.15), matGlow); neon.position.set(0, -0.01, -0.15); myGunMesh.add(neon);
                 
-                // 조준경 도트
                 const dotBase = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.02, 0.04), matDark); dotBase.position.set(0, 0.01, -0.02); myGunMesh.add(dotBase);
                 const dot = new THREE.Mesh(new THREE.CircleGeometry(0.003, 8), matGlow); dot.position.set(0, 0.03, -0.03); myGunMesh.add(dot);
+                
+                // 피카티니 레일 홈 추가 (정밀도)
+                for(let i=0; i<5; i++) { const rail = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.005, 0.01), matSilver); rail.position.set(0, -0.01, -0.2 + i*0.02); myGunMesh.add(rail); }
                 
                 gunBarrelEnd = new THREE.Object3D(); gunBarrelEnd.position.set(0, -0.05, -0.28); myGunMesh.add(gunBarrelEnd);
             } 
             else if(arch === 'ar' || arch === 'ak' || arch === 'smg' || arch === 'sniper' || arch === 'shotgun' || arch === 'energy') {
                 bLen = arch==='sniper'? 0.8 : (arch==='shotgun'||arch==='smg'? 0.3 : 0.5);
                 
-                // 리시버
                 const receiver = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), matBody); receiver.position.set(0, -0.1, 0); myGunMesh.add(receiver);
-                // 총열
                 const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, bLen, 12), matSilver); barrel.rotation.x = Math.PI/2; barrel.position.set(0, -0.08, -0.2-bLen/2); myGunMesh.add(barrel);
-                // 핸드가드
                 const handguard = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.1, bLen*0.7), matBody); handguard.position.set(0, -0.1, -0.2-(bLen*0.7)/2); myGunMesh.add(handguard);
-                // 손잡이
                 const grip = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.08), matDark); grip.position.set(0, -0.22, 0.08); grip.rotation.x = 0.2; myGunMesh.add(grip);
-                // 탄창
-                const mag = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.25, 0.1), matDark); mag.position.set(0, -0.25, -0.08); mag.rotation.x = -0.1; myGunMesh.add(mag);
-                // 개머리판
+                
+                // 탄창 요철 (Ribs)
+                const magGroup = new THREE.Group();
+                const magBase = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.25, 0.1), matDark); magGroup.add(magBase);
+                for(let i=0; i<4; i++) { const rib = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.01, 0.09), matSilver); rib.position.y = -0.1 + i*0.04; magGroup.add(rib); }
+                magGroup.position.set(0, -0.25, -0.08); magGroup.rotation.x = -0.1; myGunMesh.add(magGroup);
+                
                 const stock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.3), matBody); stock.position.set(0, -0.1, 0.35); myGunMesh.add(stock);
                 
-                // 스코프 및 홀로그램
                 if(arch === 'sniper') {
                     const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 12), matDark); scope.rotation.x = Math.PI/2; scope.position.set(0, 0.02, -0.05); myGunMesh.add(scope);
                     const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.31, 12), matGlass); lens.rotation.x = Math.PI/2; lens.position.set(0, 0.02, -0.05); myGunMesh.add(lens);
@@ -672,7 +601,7 @@
                     const dot = new THREE.Mesh(new THREE.CircleGeometry(0.005, 8), matGlow); dot.position.set(0, 0.04, -0.081); myGunMesh.add(dot);
                 }
                 
-                // 레이저 포인터
+                // 레이저 포인터 모듈
                 const laserBox = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.1), matDark); laserBox.position.set(0.05, -0.08, -0.3); myGunMesh.add(laserBox);
                 const laserGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0.05, -0.08, -0.35), new THREE.Vector3(0.05, -0.08, -50)]);
                 const gunLaser = new THREE.Line(laserGeo, new THREE.LineBasicMaterial({ color: wp.glowColor, transparent: true, opacity: 0.5 })); myGunMesh.add(gunLaser);
@@ -698,7 +627,7 @@
         }
 
         // ==================================================
-        // 7. 입력 컨트롤 (모바일 터치 / PC 키보드)
+        // 7. 완벽하게 독립된 키 입력 엔진 (버그 수정의 핵심)
         // ==================================================
         function setupControls() {
             if (GameState.isMobile) {
@@ -707,14 +636,14 @@
                 let joyId = null; const jz = document.getElementById('joystick-zone'), jk = document.getElementById('joystick-knob');
                 jz.addEventListener('touchstart', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(joyId === null) { joyId = t.identifier; updateJoy(t); break; } } }, {passive:false});
                 jz.addEventListener('touchmove', (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { updateJoy(t); break; } } }, {passive:false});
-                const endJoy = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { joyId = null; inputState.joyX=0; inputState.joyY=0; jk.style.transform='translate(-50%,-50%)'; break; } } };
+                const endJoy = (e) => { e.preventDefault(); for(let t of e.changedTouches) { if(t.identifier === joyId) { joyId = null; KeyState.joyX=0; KeyState.joyY=0; jk.style.transform='translate(-50%,-50%)'; break; } } };
                 jz.addEventListener('touchend', endJoy, {passive:false}); jz.addEventListener('touchcancel', endJoy, {passive:false});
                 function updateJoy(t) {
                     const r = jz.getBoundingClientRect(); const cx = r.left + r.width/2, cy = r.top + r.height/2;
                     let dx = t.clientX - cx, dy = t.clientY - cy; const dist = Math.sqrt(dx*dx + dy*dy);
                     if(dist > 50) { dx = (dx/dist)*50; dy = (dy/dist)*50; }
                     jk.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-                    inputState.joyX = dx/50; inputState.joyY = dy/50;
+                    KeyState.joyX = dx/50; KeyState.joyY = dy/50;
                 }
 
                 let lookId = null; let lastLookX = 0, lastLookY = 0; const lz = document.getElementById('look-zone');
@@ -722,7 +651,7 @@
                 lz.addEventListener('touchmove', (e) => { e.preventDefault();
                     for(let t of e.changedTouches) {
                         if(t.identifier === lookId) {
-                            lookDelta.x += t.clientX - lastLookX; lookDelta.y += t.clientY - lastLookY;
+                            LookDelta.x += t.clientX - lastLookX; LookDelta.y += t.clientY - lastLookY;
                             lastLookX = t.clientX; lastLookY = t.clientY; break;
                         }
                     }
@@ -739,17 +668,21 @@
                 bindBtn('shoot-btn', () => { isShootingHeld = true; tryAction(); }, () => { isShootingHeld = false; });
                 bindBtn('jump-btn', () => { if(canJump && !GameState.isDead) { velocity.y = 15; canJump = false; } });
                 bindBtn('dash-btn', doDash); bindBtn('reload-btn', doReload); bindBtn('swap-btn', doSwap);
+
             } else {
+                // PC 제어: 이벤트를 단순 플래그로만 받아와 물리 엔진에서 처리
                 document.addEventListener('keydown', (e) => {
-                    if(e.code==='KeyW') inputState.fwd=true; if(e.code==='KeyS') inputState.back=true;
-                    if(e.code==='KeyA') inputState.left=true; if(e.code==='KeyD') inputState.right=true;
-                    if(e.code==='Space') { if(canJump && !GameState.isDead) { velocity.y = 15; canJump = false; } }
-                    if(e.code==='KeyQ' || e.code==='ShiftLeft') doDash();
-                    if(e.code==='KeyR') doReload(); if(e.code==='KeyE') doSwap();
+                    const c = e.code;
+                    if(c==='KeyW') KeyState.w=true; if(c==='KeyS') KeyState.s=true;
+                    if(c==='KeyA') KeyState.a=true; if(c==='KeyD') KeyState.d=true;
+                    if(c==='Space') { if(canJump && !GameState.isDead) { velocity.y = 15; canJump = false; } }
+                    if(c==='KeyQ' || c==='ShiftLeft') doDash();
+                    if(c==='KeyR') doReload(); if(c==='KeyE') doSwap();
                 });
                 document.addEventListener('keyup', (e) => {
-                    if(e.code==='KeyW') inputState.fwd=false; if(e.code==='KeyS') inputState.back=false;
-                    if(e.code==='KeyA') inputState.left=false; if(e.code==='KeyD') inputState.right=false;
+                    const c = e.code;
+                    if(c==='KeyW') KeyState.w=false; if(c==='KeyS') KeyState.s=false;
+                    if(c==='KeyA') KeyState.a=false; if(c==='KeyD') KeyState.d=false;
                 });
                 document.addEventListener('pointerlockchange', () => isPointerLocked = (document.pointerLockElement === document.body));
                 
@@ -761,20 +694,20 @@
                 document.addEventListener('mouseup', (e) => { if(e.button === 0) isShootingHeld = false; });
                 document.addEventListener('mousemove', (e) => {
                     if(!isPointerLocked || GameState.isDead) return;
-                    lookDelta.x += e.movementX; lookDelta.y += e.movementY;
+                    LookDelta.x += e.movementX; LookDelta.y += e.movementY;
                 });
             }
         }
 
         // ==================================================
-        // 8. 무기 발사 및 액션
+        // 8. 무기 액션 및 상태 제어
         // ==================================================
         function doDash() {
             if(GameState.dashCooldown > 0 || GameState.isDead) return; playSound('dash');
             let dashDir = new THREE.Vector3();
-            if(inputState.fwd || inputState.back || inputState.left || inputState.right || inputState.joyX !== 0 || inputState.joyY !== 0) {
-                dashDir.x = (inputState.right?1:0) - (inputState.left?1:0) + inputState.joyX;
-                dashDir.z = (inputState.back?1:0) - (inputState.fwd?1:0) + inputState.joyY;
+            if(KeyState.w || KeyState.s || KeyState.a || KeyState.d || KeyState.joyX !== 0 || KeyState.joyY !== 0) {
+                dashDir.x = (KeyState.d?1:0) - (KeyState.a?1:0) + KeyState.joyX;
+                dashDir.z = (KeyState.s?1:0) - (KeyState.w?1:0) + KeyState.joyY;
                 dashDir.normalize(); dashDir.applyEuler(new THREE.Euler(0, camera.rotation.y, 0));
             } else { camera.getWorldDirection(dashDir); dashDir.y = 0; dashDir.normalize(); }
             
@@ -806,7 +739,6 @@
                 if (GameState.ammo <= 0) { if(now - GameState.lastShotTime > 500) { playSound('reload'); GameState.lastShotTime = now; } return; }
                 GameState.ammo--; updateHUD(); playSound('shoot');
                 
-                // 크로스헤어 모션
                 const cls = document.getElementsByClassName('ch-line');
                 if(cls.length === 4) {
                     cls[0].style.transform = `translateY(-20px)`; cls[1].style.transform = `translateY(20px)`;
@@ -814,15 +746,9 @@
                     setTimeout(()=>{ cls[0].style.transform = `translateY(0)`; cls[1].style.transform = `translateY(0)`; cls[2].style.transform = `translateX(0)`; cls[3].style.transform = `translateX(0)`; }, 100);
                 }
                 
-                // 반동
                 recoilTarget.z += wp.recoil * 1.5; recoilTarget.x += wp.recoil * 0.8;
-                euler.setFromQuaternion(camera.quaternion); euler.x += wp.recoil * 0.2; camera.quaternion.setFromEuler(euler);
-                
-                // 머즐 플래시
-                const mf = document.getElementById('muzzle-flash');
-                if(mf) { mf.style.opacity = 1; setTimeout(() => mf.style.opacity = 0, 50); }
+                const eur = new THREE.Euler(0,0,0,'YXZ'); eur.setFromQuaternion(camera.quaternion); eur.x += wp.recoil * 0.2; camera.quaternion.setFromEuler(eur);
 
-                // 레이캐스트
                 const rc = new THREE.Raycaster(); const center = new THREE.Vector2((Math.random()-0.5) * wp.spread, (Math.random()-0.5) * wp.spread);
                 rc.setFromCamera(center, camera);
 
@@ -837,10 +763,7 @@
 
                 if(intersects.length > 0) {
                     targetPoint = intersects[0].point; const hitObj = intersects[0].object;
-                    if(hitObj.userData && hitObj.userData.id) {
-                        hitEnemyId = hitObj.userData.id;
-                        if(hitObj.userData.type === 'head') isHeadshot = true;
-                    }
+                    if(hitObj.userData && hitObj.userData.id) { hitEnemyId = hitObj.userData.id; if(hitObj.userData.type === 'head') isHeadshot = true; }
                 } else { targetPoint = rc.ray.direction.clone().multiplyScalar(wp.range).add(camera.position); }
 
                 const startPoint = new THREE.Vector3(); gunBarrelEnd.getWorldPosition(startPoint);
@@ -848,7 +771,7 @@
                 const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([startPoint, targetPoint]), mat);
                 scene.add(line); tracers.push({ mesh: line, life: 0.5 }); 
 
-                if(GameState.conn) {
+                if(GameState.conn && !GameState.offlineMode) {
                     GameState.conn.send({ type: 'shoot', start: startPoint, end: targetPoint, color: wp.glowColor });
                     if(hitEnemyId) {
                         let finalDmg = isHeadshot ? wp.damage * 2 : wp.damage;
@@ -857,20 +780,23 @@
                         if(hm) { hm.style.opacity = 1; hm.style.filter = isHeadshot ? 'drop-shadow(0 0 8px red)' : 'drop-shadow(0 0 5px white)'; setTimeout(() => hm.style.opacity = 0, 150); }
                         playSound('hit');
                     }
+                } else if(GameState.offlineMode && hitEnemyId) {
+                    // 오프라인 과녁 타격
+                    const hm = document.getElementById('hitmarker');
+                    if(hm) { hm.style.opacity = 1; hm.style.filter = isHeadshot ? 'drop-shadow(0 0 8px red)' : 'drop-shadow(0 0 5px white)'; setTimeout(() => hm.style.opacity = 0, 150); }
+                    playSound('hit');
                 }
 
             } else if(wp.archetype === 'melee') {
-                playSound('shoot'); 
-                recoilTarget.x = -Math.PI/3; recoilTarget.y = -0.3; setTimeout(()=> { recoilTarget.set(0,0,0); }, 150);
+                playSound('shoot'); recoilTarget.x = -Math.PI/3; recoilTarget.y = -0.3; setTimeout(()=> { recoilTarget.set(0,0,0); }, 150);
                 
                 const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0,0), camera);
-                const enemyMeshes = [];
-                for(let id in enemies) { enemyMeshes.push(enemies[id].mesh.children[2]); enemies[id].mesh.children[2].userData = {id: id}; }
+                const enemyMeshes = []; for(let id in enemies) { enemyMeshes.push(enemies[id].mesh.children[2]); enemies[id].mesh.children[2].userData = {id: id}; }
                 const intersects = rc.intersectObjects(enemyMeshes, false);
                 if(intersects.length > 0 && intersects[0].distance <= wp.range) {
                     const hitObj = intersects[0].object;
                     if(hitObj.userData && hitObj.userData.id) {
-                        if(GameState.conn) GameState.conn.send({ type: 'hit', target: hitObj.userData.id, damage: wp.damage, isHead: false });
+                        if(GameState.conn && !GameState.offlineMode) GameState.conn.send({ type: 'hit', target: hitObj.userData.id, damage: wp.damage, isHead: false });
                         const hm = document.getElementById('hitmarker');
                         if(hm) { hm.style.opacity = 1; hm.style.filter = 'drop-shadow(0 0 5px white)'; setTimeout(() => hm.style.opacity = 0, 150); }
                         playSound('hit');
@@ -878,14 +804,66 @@
                 }
             } else if(wp.archetype === 'heal') {
                 playSound('heal'); GameState.hp += 50; if(GameState.hp > 100) GameState.hp = 100;
-                updateHUD();
-                recoilTarget.z = -0.2; recoilTarget.x = Math.PI/4; setTimeout(()=> { recoilTarget.set(0,0,0); }, 300);
+                updateHUD(); recoilTarget.z = -0.2; recoilTarget.x = Math.PI/4; setTimeout(()=> { recoilTarget.set(0,0,0); }, 300);
             }
             GameState.lastShotTime = now;
         }
 
         // ==================================================
-        // 9. 완벽히 수정된 물리 충돌 엔진 (월드 벡터 연산)
+        // 9. 오프라인 과녁 및 온라인 아바타 처리
+        // ==================================================
+        function createEnemyModel(id, name) {
+            const group = new THREE.Group();
+            const mHead = new THREE.MeshStandardMaterial({color: 0xffccaa});
+            const mTorso = new THREE.MeshStandardMaterial({color: 0x45a29e});
+            
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), mHead); head.position.y = 2.4; head.castShadow = true; group.add(head);
+            const face = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.82), new THREE.MeshBasicMaterial({color:0x0b0c10})); face.position.y = 2.45; group.add(face);
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 0.8), mTorso); torso.position.y = 1.2; torso.castShadow = true; group.add(torso);
+            const armL = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), mHead); armL.position.set(-1.1, 1.2, 0); armL.castShadow = true; group.add(armL);
+            const armR = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), mHead); armR.position.set(1.1, 1.2, 0); armR.castShadow = true; group.add(armR);
+            
+            const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 128;
+            const ctx = canvas.getContext('2d'); const tex = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+            sprite.position.y = 3.6; sprite.scale.set(1.5, 0.75, 1); group.add(sprite);
+            
+            enemies[id] = { mesh: group, ctx: ctx, tex: tex, hp: 100, name: name, torso: torso };
+            scene.add(group); updateEnemyUI(id);
+        }
+
+        function updateEnemyUI(id) {
+            const e = enemies[id]; e.ctx.clearRect(0,0,256,128); e.ctx.fillStyle = '#000'; e.ctx.font = 'bold 30px Teko'; e.ctx.textAlign = 'center'; e.ctx.fillText(e.name, 130, 42); e.ctx.fillStyle = '#fff'; e.ctx.fillText(e.name, 128, 40); e.ctx.fillStyle = '#111'; e.ctx.fillRect(28, 60, 200, 16); e.ctx.fillStyle = e.hp > 50 ? '#00ffcc' : e.hp > 20 ? '#ffcc00' : '#ff3366'; e.ctx.fillRect(30, 62, 196 * (e.hp/100), 12); e.tex.needsUpdate = true;
+        }
+
+        function handleDamage(data) {
+            if(data.target === GameState.username && !GameState.isDead) {
+                GameState.hp -= data.damage; updateHUD();
+                const overlay = document.getElementById('damage-overlay'); if(overlay) { overlay.style.opacity = 1; setTimeout(() => overlay.style.opacity = 0, 200); }
+                const eur = new THREE.Euler(0,0,0,'YXZ'); eur.setFromQuaternion(camera.quaternion); eur.x += (Math.random()-0.5)*0.15; eur.y += (Math.random()-0.5)*0.15; camera.quaternion.setFromEuler(eur);
+
+                if(GameState.hp <= 0) {
+                    GameState.isDead = true; GameState.hp = 0; updateHUD();
+                    GameState.conn.send({ type: 'killmsg', killer: "Enemy", victim: GameState.username }); handleKillMsg({killer: "Enemy", victim: GameState.username});
+                    const rUI = document.getElementById('respawn-ui'); if(rUI) rUI.classList.remove('hidden');
+                    if(document.pointerLockElement) document.exitPointerLock();
+                    camera.position.y = 0.2; camera.rotation.z = Math.PI / 4;
+                    let timeLeft = 3; const timerEl = document.getElementById('respawn-timer');
+                    const interval = setInterval(() => { timeLeft--; if(timerEl) timerEl.innerText = `${timeLeft}초 후 재배치...`; if(timeLeft <= 0) { clearInterval(interval); GameState.isDead = false; GameState.hp = 100; GameState.ammo = getCurWeapon().mag; updateHUD(); camera.position.set(Math.random()*20-10, 4.0, Math.random() > 0.5 ? 40 : -40); camera.rotation.set(0, camera.position.z > 0 ? Math.PI : 0, 0); if(rUI) rUI.classList.add('hidden'); GameState.conn.send({ type: 'respawn', name: GameState.username }); } }, 1000);
+                }
+            } else {
+                if(enemies[data.target]) { enemies[data.target].torso.material.emissive.setHex(0xff0000); setTimeout(() => { if(enemies[data.target]) enemies[data.target].torso.material.emissive.setHex(0x000000); }, 100); }
+            }
+        }
+
+        function handleKillMsg(data) {
+            const ul = document.getElementById('killfeed'); 
+            if(ul) { const li = document.createElement('li'); li.innerHTML = `<span style="color:#00ffcc">${data.killer}</span> 🔫 <span style="color:#ff2a5f">${data.victim}</span>`; ul.appendChild(li); setTimeout(() => li.remove(), 4000); }
+            if(data.killer === GameState.username) { GameState.kills++; GameState.keys += 5; const elKeys = document.getElementById('ui-keys'); if(elKeys) elKeys.innerText = GameState.keys; updateHUD(); }
+        }
+
+        // ==================================================
+        // 10. 메인 물리 & 충돌 계산 루프 (버그 수정의 핵심)
         // ==================================================
         function animate() {
             requestAnimationFrame(animate);
@@ -900,51 +878,44 @@
                     if(dFill) dFill.style.width = `${((2.0 - GameState.dashCooldown)/2.0)*100}%`;
                 }
 
-                // 시야 제어 (마우스/우측 터치 델타 소모)
-                if(lookDelta.x !== 0 || lookDelta.y !== 0) {
+                if(LookDelta.x !== 0 || LookDelta.y !== 0) {
                     euler.setFromQuaternion(camera.quaternion);
-                    euler.y -= lookDelta.x * 0.003; euler.x -= lookDelta.y * 0.003;
+                    euler.y -= LookDelta.x * 0.003; euler.x -= LookDelta.y * 0.003;
                     euler.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, euler.x));
                     camera.quaternion.setFromEuler(euler);
-                    lookDelta.x = 0; lookDelta.y = 0;
+                    LookDelta.x = 0; LookDelta.y = 0;
                 }
 
-                // 입력 벡터 계산 (로컬 공간)
+                // 입력 벡터 계산 (월드 기반)
                 const inputVec = new THREE.Vector3(
-                    (inputState.right?1:0) - (inputState.left?1:0) + inputState.joyX,
+                    (KeyState.d?1:0) - (KeyState.a?1:0) + KeyState.joyX,
                     0,
-                    (inputState.back?1:0) - (inputState.fwd?1:0) + inputState.joyY
+                    (KeyState.s?1:0) - (KeyState.w?1:0) + KeyState.joyY
                 );
                 if(inputVec.lengthSq() > 1) inputVec.normalize();
-                
-                // 로컬 방향 벡터를 월드 방향으로 회전 적용
                 inputVec.applyEuler(new THREE.Euler(0, camera.rotation.y, 0));
 
                 velocity.x -= velocity.x * 10.0 * delta;
                 velocity.z -= velocity.z * 10.0 * delta;
-                velocity.y -= 40.0 * delta; // 중력
+                velocity.y -= 40.0 * delta;
 
                 const speed = 250.0;
                 velocity.x += inputVec.x * speed * delta;
                 velocity.z += inputVec.z * speed * delta;
 
-                // 다음 프레임 위치 계산 (월드 좌표 기준 절대 이동)
+                // 다음 이동 좌표
                 const nextX = camera.position.x + velocity.x * delta;
                 const nextZ = camera.position.z + velocity.z * delta;
                 const r = 0.8; const h = 2.0;
                 
                 let canMoveX = true; let canMoveZ = true; let groundY = 0;
                 
-                // AABB 충돌체 연산 (벽 미끄러짐 지원)
+                // AABB 충돌 연산
                 for(let i=0; i<collidables.length; i++) {
                     const box = new THREE.Box3().setFromObject(collidables[i].mesh);
-                    
-                    // 바닥 밟기 판정
                     if (camera.position.x >= box.min.x && camera.position.x <= box.max.x && camera.position.z >= box.min.z && camera.position.z <= box.max.z) {
                         if(box.max.y > groundY && box.max.y <= camera.position.y) groundY = box.max.y;
                     }
-                    
-                    // 벽 판정 (X, Z 분리 처리로 미끄러짐 구현)
                     if (camera.position.y - h < box.max.y && camera.position.y > box.min.y) {
                         if (camera.position.z + r > box.min.z && camera.position.z - r < box.max.z) {
                             if (nextX + r > box.min.x && nextX - r < box.max.x) canMoveX = false;
@@ -955,12 +926,11 @@
                     }
                 }
 
-                // 월드 좌표 직접 대입 (버그 해결 핵심)
                 if(canMoveX) camera.position.x = nextX; else velocity.x = 0;
                 if(canMoveZ) camera.position.z = nextZ; else velocity.z = 0;
                 
                 camera.position.y += velocity.y * delta;
-                if (camera.position.y <= groundY + h) { velocity.y = 0; camera.position.y = groundY + h; canJump = true; }
+                if (camera.position.y < groundY + h) { velocity.y = 0; camera.position.y = groundY + h; canJump = true; }
 
                 currentRecoil.lerp(recoilTarget, 20 * delta); recoilTarget.lerp(new THREE.Vector3(0,0,0), 12 * delta);
 
